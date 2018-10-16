@@ -19,6 +19,7 @@ public class ManualController extends CarController {
 	
 	public void update(){
 		//System.out.println(MapManager.getInstance().getrealMap());
+		MapManager.getInstance().setScanMap();
 		for (Coordinate key : MapManager.getInstance().getrealMap().keySet()) {
 			if(MapManager.getInstance().getrealMap().get(key) instanceof LavaTrap) {
 				System.out.println("I found lava!!!!!!!!!!!!");

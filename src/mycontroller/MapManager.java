@@ -85,7 +85,6 @@ public class MapManager {
 		HashMap<Coordinate, MapTile> currentView = car.getView();
 		for (int i = 0; i < viewSquare; i++) {
 			for (int j = 0; j < viewSquare; j++) {
-				System.out.println(j);
 				Coordinate furtherPos = new Coordinate(Integer.toString(pos.x + i) + "," + Integer.toString(pos.y + j));
 				Coordinate backPos = new Coordinate(Integer.toString(pos.x - i) + "," + Integer.toString(pos.y - j));
 				if (originMap.containsKey(furtherPos) && !scanMap.get(furtherPos)) {
