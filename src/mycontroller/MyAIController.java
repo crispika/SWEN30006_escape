@@ -2,6 +2,8 @@ package mycontroller;
 
 import java.util.HashMap;
 
+import javax.swing.text.View;
+
 import controller.CarController;
 import tiles.MapTile;
 import tiles.MapTile.Type;
@@ -10,30 +12,26 @@ import world.Car;
 
 public class MyAIController extends CarController{
 
-	
+	private int view;
 	
 	public MyAIController(Car car) {
 		super(car);
 		//MapManager.getInstance().initialize(getMap(),getPosition(),getViewSquare(),getView());
 		MapManager.getInstance().initialize(this);
+		view = getViewSquare();
 	}
 
 	@Override
 	public void update() {
 		
-		System.out.println(MapManager.getInstance().getrealMap());
 		
 	}
 	
 	
-	//scan the map clockwise
-	public void getNextRotatedGoal() {
-		
-	}
-	
-	public boolean isReachable(Coordinate pos) {
-		
-		return false;
+	public void ClockWiseSearch() {
+		for (int i=0;i<view;i++) {
+			
+		}
 	}
 
 }
