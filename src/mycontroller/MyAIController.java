@@ -21,7 +21,7 @@ public class MyAIController extends CarController{
 	@Override
 	public void update() {
 		
-		System.out.println(MapManager.getInstance().getrealMap());
+		//System.out.println(MapManager.getInstance().getrealMap());
 		
 	}
 	
