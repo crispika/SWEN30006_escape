@@ -3,11 +3,13 @@ package mycontroller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PrimitiveIterator.OfDouble;
+import java.util.Stack;
 
 import controller.CarController;
 import tiles.HealthTrap;
 import tiles.LavaTrap;
 import tiles.MapTile;
+import tiles.MudTrap;
 import tiles.MapTile.Type;
 import utilities.Coordinate;
 
@@ -28,6 +30,7 @@ public class MapManager {
 	
 	private ArrayList<Coordinate> keylist = new ArrayList<Coordinate>();
 	private ArrayList<Coordinate> safePos = new ArrayList<Coordinate>();
+	private ArrayList<Coordinate> reachable = new ArrayList<Coordinate>();
 	
 	
 	public void initialize(CarController car) {
@@ -46,6 +49,9 @@ public class MapManager {
 		
 		viewSquare = car.getViewSquare();
 		setScanMap();
+		DFS();
+		System.out.println(reachable);
+		System.out.println(start);
 	}
 	
 	
@@ -123,37 +129,84 @@ public class MapManager {
 	
 	
 	//find what in the next direction
-	public MapTile toNorth() {
-		Coordinate currPos = new Coordinate(car.getPosition());
-		if(currPos.y == car.mapHeight()) {
+	public MapTile toNorth(Coordinate pos) {
+		if(pos.y == car.mapHeight() -1) {
 			return null;
 		}
-		return realMap.get(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y+1)));
+		return realMap.get(new Coordinate(Integer.toString(pos.x) + "," + Integer.toString(pos.y+1)));
 	}
 	
-	public MapTile toSouth() {
-		Coordinate currPos = new Coordinate(car.getPosition());
-		if(currPos.y == 0) {
+	public MapTile toSouth(Coordinate pos) {
+		if(pos.y == 0) {
 			return null;
 		}
-		return realMap.get(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y-1)));
+		return realMap.get(new Coordinate(Integer.toString(pos.x) + "," + Integer.toString(pos.y-1)));
 	}
 	
-	public MapTile toEast() {
-		Coordinate currPos = new Coordinate(car.getPosition());
-		if(currPos.x == 0) {
+	public MapTile toEast(Coordinate pos) {
+		if(pos.x == car.mapWidth() -1) {
 			return null;
 		}
-		return realMap.get(new Coordinate(Integer.toString(currPos.x-1) + "," + Integer.toString(currPos.y)));
+		return realMap.get(new Coordinate(Integer.toString(pos.x+1) + "," + Integer.toString(pos.y)));
 	}
 	
-	public MapTile toWest() {
-		Coordinate currPos = new Coordinate(car.getPosition());
-		if(currPos.x == car.mapWidth()) {
+	public MapTile toWest(Coordinate pos) {
+		if(pos.x == 0) {
 			return null;
 		}
-		return realMap.get(new Coordinate(Integer.toString(currPos.x+1) + "," + Integer.toString(currPos.y)));
+		return realMap.get(new Coordinate(Integer.toString(pos.x-1) + "," + Integer.toString(pos.y)));
 	}
+	
+	public HashMap<Coordinate, MapTile> getSuccessors(Coordinate currPos){
+		HashMap<Coordinate, MapTile> successors = new HashMap<Coordinate, MapTile>();
+		
+		if (toNorth(currPos) == null || toNorth(currPos).isType(Type.WALL) || toNorth(currPos) instanceof MudTrap) {
+			
+			successors.put(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y+1)), null);
+		}
+		else {
+			successors.put(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y+1)),toNorth(currPos));
+		}
+		
+		if (toSouth(currPos) == null || toSouth(currPos).isType(Type.WALL) || toSouth(currPos) instanceof MudTrap) {
+			successors.put(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y-1)), null);
+		}
+		else {
+			successors.put(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y-1)),toSouth(currPos));
+		}
+		
+		if (toEast(currPos) == null || toEast(currPos).isType(Type.WALL) || toEast(currPos) instanceof MudTrap) {
+			successors.put(new Coordinate(Integer.toString(currPos.x+1) + "," + Integer.toString(currPos.y)), null);
+		}
+		else {
+			successors.put(new Coordinate(Integer.toString(currPos.x+1) + "," + Integer.toString(currPos.y)),toEast(currPos));
+		}
+		
+		if (toWest(currPos) == null || toWest(currPos).isType(Type.WALL) || toWest(currPos) instanceof MudTrap) {
+			successors.put(new Coordinate(Integer.toString(currPos.x-1) + "," + Integer.toString(currPos.y)), null);
+		}
+		else {
+			successors.put(new Coordinate(Integer.toString(currPos.x-1) + "," + Integer.toString(currPos.y)),toWest(currPos));
+		}
+		
+		return successors;
+	}
+	
+	public void DFS() {
+		Stack<Coordinate> dfStack = new Stack<Coordinate>();
+		dfStack.push(start);
+		reachable.add(start);
+		while (!dfStack.isEmpty()) {
+			Coordinate pos = dfStack.pop();
+			for (Coordinate key: getSuccessors(pos).keySet()) {
+				if (getSuccessors(pos).get(key) != null && !reachable.contains(key)) {
+					dfStack.push(key);
+					reachable.add(key);
+				}
+			}
+		}
+	}
+	
 	
 	
 }
