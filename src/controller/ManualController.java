@@ -2,6 +2,8 @@ package controller;
 
 import java.util.Set;
 import com.badlogic.gdx.Input;
+
+import mycontroller.MapManager;
 import world.Car;
 import swen30006.driving.Simulation;
 
@@ -15,8 +17,8 @@ public class ManualController extends CarController {
 	public void update(){
 		Set<Integer> keys = Simulation.getKeys();
 		Simulation.resetKeys();
-		// System.out.print("Get Keys: ");
-        // System.out.println(keys);
+		 //System.out.print("Get Keys: ");
+         //System.out.println(keys);
         for (int k : keys){
 		     switch (k){
 		        case Input.Keys.B:

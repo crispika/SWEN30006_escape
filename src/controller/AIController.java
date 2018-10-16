@@ -2,6 +2,8 @@ package controller;
 
 import java.util.HashMap;
 
+import com.badlogic.gdx.maps.Map;
+
 import tiles.MapTile;
 import utilities.Coordinate;
 import world.Car;
@@ -27,6 +29,12 @@ public class AIController extends CarController {
 	public void update() {
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = getView();
+		HashMap<Coordinate, MapTile> getMap = getMap();
+		System.err.println("-----------");
+		for(Coordinate key: getMap.keySet()) {
+			System.out.println(getMap.get(key).getType());
+		}
+		
 		
 		// checkStateChange();
 		if(getSpeed() < CAR_MAX_SPEED){       // Need speed to turn and progress toward the exit
