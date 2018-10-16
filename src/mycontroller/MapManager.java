@@ -2,6 +2,7 @@ package mycontroller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.PrimitiveIterator.OfDouble;
 
 import controller.CarController;
 import tiles.HealthTrap;
@@ -44,7 +45,7 @@ public class MapManager {
 		}
 		
 		viewSquare = car.getViewSquare();
-		setScanMap(start);
+		setScanMap();
 	}
 	
 	
@@ -79,7 +80,8 @@ public class MapManager {
 //	}
 	
 	//record the map viewed by the car
-	public void setScanMap(Coordinate pos) {
+	public void setScanMap() {
+		Coordinate pos = new Coordinate(car.getPosition());
 		HashMap<Coordinate, MapTile> currentView = car.getView();
 		for (int i = 0; i < viewSquare; i++) {
 			for (int j = 0; j < viewSquare; j++) {
@@ -102,7 +104,7 @@ public class MapManager {
 		}
 	}
 	
-	public void setKeyInfo(Coordinate pos) {
+	private void setKeyInfo(Coordinate pos) {
 		if (realMap.get(pos) instanceof LavaTrap) {
 			if (((LavaTrap) realMap.get(pos) ).getKey() > 0) {
 				keylist.add(pos);
@@ -110,7 +112,7 @@ public class MapManager {
 		}
 	}
 	
-	public void setSafePos(Coordinate pos) {
+	private void setSafePos(Coordinate pos) {
 		if(realMap.get(pos) instanceof HealthTrap) {
 			safePos.add(pos);
 		}
@@ -120,6 +122,39 @@ public class MapManager {
 		return realMap;
 	}
 	
+	
+	//find what in the next direction
+	public MapTile toNorth() {
+		Coordinate currPos = new Coordinate(car.getPosition());
+		if(currPos.y == car.mapHeight()) {
+			return null;
+		}
+		return realMap.get(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y+1)));
+	}
+	
+	public MapTile toSouth() {
+		Coordinate currPos = new Coordinate(car.getPosition());
+		if(currPos.y == 0) {
+			return null;
+		}
+		return realMap.get(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y-1)));
+	}
+	
+	public MapTile toEast() {
+		Coordinate currPos = new Coordinate(car.getPosition());
+		if(currPos.x == 0) {
+			return null;
+		}
+		return realMap.get(new Coordinate(Integer.toString(currPos.x-1) + "," + Integer.toString(currPos.y)));
+	}
+	
+	public MapTile toWest() {
+		Coordinate currPos = new Coordinate(car.getPosition());
+		if(currPos.x == car.mapWidth()) {
+			return null;
+		}
+		return realMap.get(new Coordinate(Integer.toString(currPos.x+1) + "," + Integer.toString(currPos.y)));
+	}
 	
 	
 }
