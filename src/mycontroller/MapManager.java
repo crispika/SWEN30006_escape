@@ -49,11 +49,11 @@ public class MapManager {
 		
 		viewSquare = car.getViewSquare();
 		setScanMap();
-		//reachable = Search.DFS(start);
+		reachable = Search.DFS(start);
 		//System.out.println(reachable);
 		//System.out.println("-----------------------------");
 		cleanReachable();
-		//System.out.println(reachable);
+		System.out.println(reachable);
 		//System.out.println(start);
 	}
 	
