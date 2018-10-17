@@ -50,23 +50,22 @@ public class MyAIController extends CarController{
 	public boolean canAhead(WorldSpatial.Direction orientation, Coordinate currPos) {
 		MapManager.getInstance().getSuccessors(currPos);
 		HashMap<String, MapTile> dirSuccessors = MapManager.getInstance().getDirSuccessors();
-		
-		switch(orientation){
-		case EAST:
-			if(dirSuccessors.get("EAST") == null) {
+
+		switch (orientation) {
+			case EAST:
+				if (dirSuccessors.get("EAST") == null) {
+					return false;
+				} else {
+
+				}
+
+			case NORTH:
+			case SOUTH:
+			case WEST:
+			default:
 				return false;
-			}
-			else {
-				
-			}
-			
-		case NORTH:
-		case SOUTH:
-		case WEST:
-		default:
-			return false;
+		}
 	}
-	
 
 
 }
