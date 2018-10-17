@@ -2,9 +2,12 @@ package mycontroller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.PrimitiveIterator.OfDouble;
-import java.util.Stack;
 
+
+import java.util.Stack;
+import java.util.Queue;
 import controller.CarController;
 import tiles.HealthTrap;
 import tiles.LavaTrap;
@@ -32,6 +35,7 @@ public class MapManager {
 	private ArrayList<Coordinate> safePos = new ArrayList<Coordinate>();
 	private ArrayList<Coordinate> reachable = new ArrayList<Coordinate>();
 	
+	private HashMap<String, MapTile> dirSuccessors ;
 	
 	public void initialize(CarController car) {
 		
@@ -159,38 +163,52 @@ public class MapManager {
 	
 	public HashMap<Coordinate, MapTile> getSuccessors(Coordinate currPos){
 		HashMap<Coordinate, MapTile> successors = new HashMap<Coordinate, MapTile>();
+		dirSuccessors = new HashMap<String, MapTile>();
 		
 		if (toNorth(currPos) == null || toNorth(currPos).isType(Type.WALL) || toNorth(currPos) instanceof MudTrap) {
 			
 			successors.put(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y+1)), null);
+			dirSuccessors.put("NORTH", null);
 		}
 		else {
 			successors.put(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y+1)),toNorth(currPos));
+			dirSuccessors.put("NORTH", toNorth(currPos));
 		}
 		
 		if (toSouth(currPos) == null || toSouth(currPos).isType(Type.WALL) || toSouth(currPos) instanceof MudTrap) {
 			successors.put(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y-1)), null);
+			dirSuccessors.put("SOUTH", null);
 		}
 		else {
 			successors.put(new Coordinate(Integer.toString(currPos.x) + "," + Integer.toString(currPos.y-1)),toSouth(currPos));
+			dirSuccessors.put("SOUTH", toSouth(currPos));
 		}
 		
 		if (toEast(currPos) == null || toEast(currPos).isType(Type.WALL) || toEast(currPos) instanceof MudTrap) {
 			successors.put(new Coordinate(Integer.toString(currPos.x+1) + "," + Integer.toString(currPos.y)), null);
+			dirSuccessors.put("EAST", null);
 		}
 		else {
 			successors.put(new Coordinate(Integer.toString(currPos.x+1) + "," + Integer.toString(currPos.y)),toEast(currPos));
+			dirSuccessors.put("EAST", toEast(currPos));
 		}
 		
 		if (toWest(currPos) == null || toWest(currPos).isType(Type.WALL) || toWest(currPos) instanceof MudTrap) {
 			successors.put(new Coordinate(Integer.toString(currPos.x-1) + "," + Integer.toString(currPos.y)), null);
+			dirSuccessors.put("WEST", null);
 		}
 		else {
 			successors.put(new Coordinate(Integer.toString(currPos.x-1) + "," + Integer.toString(currPos.y)),toWest(currPos));
+			dirSuccessors.put("WEST", toWest(currPos));
 		}
 		
 		return successors;
 	}
+	
+	public HashMap<String, MapTile> getDirSuccessors(){
+		return dirSuccessors;
+	}
+
 	
 	public void DFS() {
 		Stack<Coordinate> dfStack = new Stack<Coordinate>();
@@ -207,6 +225,28 @@ public class MapManager {
 		}
 	}
 	
+	public boolean isReachable(Coordinate pos) {
+		if (reachable.contains(pos)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 	
-	
+	public void bfs(Coordinate startpos, Coordinate goalpos) {
+		Queue<Coordinate> bfsQueue = new LinkedList<Coordinate>();
+		
+		bfsQueue.offer(startpos);
+		
+		while (!bfsQueue.isEmpty()) {
+			Coordinate pos = bfsQueue.poll();
+			for (Coordinate key: getSuccessors(pos).keySet()) {
+				if (getSuccessors(pos).get(key) != null && !reachable.contains(key)) {
+					bfsQueue.offer(key);
+				}
+			}
+		}
+		
+	}
 }
