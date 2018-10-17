@@ -53,7 +53,7 @@ public class MapManager {
 		
 		viewSquare = car.getViewSquare();
 		setScanMap();
-		DFS();
+		reachable = Search.DFS(start);
 		System.out.println(reachable);
 		System.out.println(start);
 	}
@@ -204,27 +204,12 @@ public class MapManager {
 		
 		return successors;
 	}
-	
+
 	public HashMap<String, MapTile> getDirSuccessors(){
 		return dirSuccessors;
 	}
 
-	
-	public void DFS() {
-		Stack<Coordinate> dfStack = new Stack<Coordinate>();
-		dfStack.push(start);
-		reachable.add(start);
-		while (!dfStack.isEmpty()) {
-			Coordinate pos = dfStack.pop();
-			for (Coordinate key: getSuccessors(pos).keySet()) {
-				if (getSuccessors(pos).get(key) != null && !reachable.contains(key)) {
-					dfStack.push(key);
-					reachable.add(key);
-				}
-			}
-		}
-	}
-	
+
 	public boolean isReachable(Coordinate pos) {
 		if (reachable.contains(pos)) {
 			return true;
@@ -233,12 +218,12 @@ public class MapManager {
 			return false;
 		}
 	}
-	
+
 	public void bfs(Coordinate startpos, Coordinate goalpos) {
 		Queue<Coordinate> bfsQueue = new LinkedList<Coordinate>();
-		
+
 		bfsQueue.offer(startpos);
-		
+
 		while (!bfsQueue.isEmpty()) {
 			Coordinate pos = bfsQueue.poll();
 			for (Coordinate key: getSuccessors(pos).keySet()) {
@@ -247,6 +232,6 @@ public class MapManager {
 				}
 			}
 		}
-		
+
 	}
 }
