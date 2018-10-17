@@ -15,6 +15,7 @@ public class MyAIController extends CarController{
 		//MapManager.getInstance().initialize(getMap(),getPosition(),getViewSquare(),getView());
 		MapManager.getInstance().initialize(this);
 		SafeExploreStrategy.getInstance().initialize(this);
+		GoalExploreStrategy.getInstance().initialize(this);
 		
 		start = new Coordinate(getPosition());
 		view = getViewSquare();
@@ -22,14 +23,14 @@ public class MyAIController extends CarController{
 
 	@Override
 	public void update() {
-		MapManager.getInstance().setScanMap();
-		SafeExploreStrategy.getInstance().safeExplore();
+		//MapManager.getInstance().setScanMap();
+		//SafeExploreStrategy.getInstance().safeExplore();
 		
-		
+		 Coordinate goal = new Coordinate(35,0);
+	     GoalExploreStrategy.getInstance().moveToPos(goal);
 	}
 	
 	
-	
-	
+
 	
 }
