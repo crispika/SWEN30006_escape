@@ -1,28 +1,69 @@
 package mycontroller;
 
+import controller.CarController;
+import tiles.MapTile;
 import utilities.Coordinate;
-import java.util.ArrayList;
-import java.util.Stack;
+
+import java.util.*;
 
 public class Search {
 
     public static ArrayList DFS(Coordinate start) {
-        ArrayList<Coordinate> reachable = new ArrayList<Coordinate>();
+        ArrayList<Coordinate> visited = new ArrayList<Coordinate>();
         Stack<Coordinate> dfStack = new Stack<Coordinate>();
         MapManager map = MapManager.getInstance();
 
         dfStack.push(start);
-        reachable.add(start);
+        visited.add(start);
         while (!dfStack.isEmpty()) {
             Coordinate pos = dfStack.pop();
             for (Coordinate key: map.getSuccessors(pos).keySet()) {
-                if (map.getSuccessors(pos).get(key) != null && !reachable.contains(key)) {
+                if (map.getSuccessors(pos).get(key) != null && !visited.contains(key)) {
                     dfStack.push(key);
-                    reachable.add(key);
+                    visited.add(key);
                 }
             }
         }
-        return reachable;
+        return visited;
     }
+
+    public static ArrayList BFS_findPathToPos(Coordinate startPos, Coordinate goalPos) {
+        ArrayList<Coordinate> visited = new ArrayList<Coordinate>();
+        HashMap<Coordinate, ArrayList> allPath = new HashMap<Coordinate, ArrayList>();
+
+
+        Queue<Coordinate> bfsQueue = new LinkedList<Coordinate>();
+        MapManager map = MapManager.getInstance();
+
+        bfsQueue.offer(startPos);
+        visited.add(startPos);
+
+        ArrayList<Coordinate> path = new ArrayList<Coordinate>();
+        path.add(startPos);
+        allPath.put(startPos,path);
+
+        while (!bfsQueue.isEmpty()) {
+            Coordinate pos = bfsQueue.poll();
+            for (Coordinate key: map.getSuccessors(pos).keySet()) {
+                path = new ArrayList<Coordinate>(allPath.get(pos));
+
+                if (map.getSuccessors(pos).get(key) != null && !visited.contains(key)) {
+                    bfsQueue.offer(key);
+                    visited.add(key);
+                    path.add(key);
+                    allPath.put(key,path);
+
+                    if (key.equals(goalPos)){
+                        return allPath.get(key);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+
+
 
 }
