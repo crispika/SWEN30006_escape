@@ -2,12 +2,8 @@ package mycontroller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.PrimitiveIterator.OfDouble;
+import java.util.Iterator;
 
-
-import java.util.Stack;
-import java.util.Queue;
 import controller.CarController;
 import tiles.HealthTrap;
 import tiles.LavaTrap;
@@ -53,9 +49,12 @@ public class MapManager {
 		
 		viewSquare = car.getViewSquare();
 		setScanMap();
-		reachable = Search.DFS(start);
-		System.out.println(reachable);
-		System.out.println(start);
+		//reachable = Search.DFS(start);
+		//System.out.println(reachable);
+		//System.out.println("-----------------------------");
+		cleanReachable();
+		//System.out.println(reachable);
+		//System.out.println(start);
 	}
 	
 	
@@ -95,7 +94,6 @@ public class MapManager {
 		HashMap<Coordinate, MapTile> currentView = car.getView();
 		for (int i = 0; i < viewSquare; i++) {
 			for (int j = 0; j < viewSquare; j++) {
-				System.out.println(j);
 				Coordinate furtherPos = new Coordinate(Integer.toString(pos.x + i) + "," + Integer.toString(pos.y + j));
 				Coordinate backPos = new Coordinate(Integer.toString(pos.x - i) + "," + Integer.toString(pos.y - j));
 				if (originMap.containsKey(furtherPos) && !scanMap.get(furtherPos)) {
@@ -209,6 +207,23 @@ public class MapManager {
 	public HashMap<String, MapTile> getDirSuccessors(){
 		return dirSuccessors;
 	}
+	
+	public void cleanReachable() {	// remove point with 3 walls around which is "DeadEnd" 
+		Iterator<Coordinate> iterator = reachable.iterator();
+		while(iterator.hasNext()) {
+			Coordinate pos = iterator.next();
+			HashMap<Coordinate, MapTile> successors = getSuccessors(pos);
+			int count = 0;
+			for (Coordinate key: successors.keySet()) {
+				if (successors.get(key) == null) {
+					count+=1;
+				}
+			}
+			if (count >= 3) {
+				iterator.remove();
+			}
+		}
+	}
 
 
 	public boolean isReachable(Coordinate pos) {
@@ -220,19 +235,5 @@ public class MapManager {
 		}
 	}
 
-	public void bfs(Coordinate startpos, Coordinate goalpos) {
-		Queue<Coordinate> bfsQueue = new LinkedList<Coordinate>();
 
-		bfsQueue.offer(startpos);
-
-		while (!bfsQueue.isEmpty()) {
-			Coordinate pos = bfsQueue.poll();
-			for (Coordinate key: getSuccessors(pos).keySet()) {
-				if (getSuccessors(pos).get(key) != null && !reachable.contains(key)) {
-					bfsQueue.offer(key);
-				}
-			}
-		}
-
-	}
 }
