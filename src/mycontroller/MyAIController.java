@@ -38,32 +38,68 @@ public class MyAIController extends CarController{
 	
 	public void safeExplore() {
 		Coordinate currPos = new Coordinate(getPosition()); 
-		if (getSpeed() < CAR_MAX_SPEED) {
-			
+		MapManager.getInstance().getSuccessors(currPos);
+		HashMap<String, MapTile> dirSuccessors = MapManager.getInstance().getDirSuccessors();
+		
+		if (getSpeed() == 0) {
+			if(canAhead(getOrientation(), currPos)) {
+				applyForwardAcceleration();
+			}
+			else {
+				applyReverseAcceleration();
+			}
+		}
+		else {
+			if(canAhead(getOrientation(), currPos)) {
+				
+				applyForwardAcceleration();
+			}
 		}
 		
-		for (Coordinate key: MapManager.getInstance().getSuccessors(currPos).keySet()) {
-			
-		}
+		
 	}
 	
 	public boolean canAhead(WorldSpatial.Direction orientation, Coordinate currPos) {
+		if ( checkNext(orientation, currPos) == null) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+		
+	public MapTile checkNext(WorldSpatial.Direction orientation, Coordinate currPos) {
 		MapManager.getInstance().getSuccessors(currPos);
 		HashMap<String, MapTile> dirSuccessors = MapManager.getInstance().getDirSuccessors();
 
 		switch (orientation) {
-			case EAST:
-				if (dirSuccessors.get("EAST") == null) {
-					return false;
-				} else {
-
-				}
-
-			case NORTH:
-			case SOUTH:
-			case WEST:
-			default:
-				return false;
+		case EAST:
+			if (dirSuccessors.get("EAST") == null) {
+				return null;
+			} else {
+				return dirSuccessors.get("EAST");
+			}
+		case NORTH:
+			if (dirSuccessors.get("NORTH") == null) {
+				return null;
+			} else {
+				return dirSuccessors.get("NORTH");
+			}
+		case SOUTH:
+			if (dirSuccessors.get("SOUTH") == null) {
+				return null;
+			} else {
+				return dirSuccessors.get("SOUTH");
+			}
+		case WEST:
+			if (dirSuccessors.get("WEST") == null) {
+				return null;
+			} else {
+				return dirSuccessors.get("WEST");
+			}
+		default:
+			System.err.println("I am into Default Case");
+			return null;
 		}
 	}
 
