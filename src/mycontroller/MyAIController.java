@@ -9,13 +9,16 @@ import tiles.MapTile;
 import tiles.MapTile.Type;
 import utilities.Coordinate;
 import world.Car;
+import world.WorldSpatial;
 
 public class MyAIController extends CarController{
+	private final int CAR_MAX_SPEED = 1;
 
+	
 	private int view;
 	private Coordinate start;
-	private enum GoalDirection {North,South,West,East};
-	private GoalDirection currGoal;
+	private int counter = 0;
+	
 	
 	
 	public MyAIController(Car car) {
@@ -24,7 +27,6 @@ public class MyAIController extends CarController{
 		MapManager.getInstance().initialize(this);
 		view = getViewSquare();
 		start = new Coordinate(getPosition());
-		currGoal = GoalDirection.North;
 	}
 
 	@Override
@@ -34,38 +36,37 @@ public class MyAIController extends CarController{
 		
 	}
 	
-	
-	public void ClockWiseSearch() {
-		int x = start.x;
-		int y = start.y;
-		Coordinate currPos = new Coordinate(getPosition());
-		switch(currGoal) {
-		case North:
+	public void safeExplore() {
+		Coordinate currPos = new Coordinate(getPosition()); 
+		if (getSpeed() < CAR_MAX_SPEED) {
 			
-//			if (currPos.y < y) {
-//				if (MapManager.getInstance().toNorth().isType(Type.ROAD)) {
-//
-//				}
-//			}
-//			else {
-//				currGoal = GoalDirection.East;
-//			}
-			
-			
-			
-			
-			break;
-		case East:
-			break;
-		case South:
-			break;
-		case West:
-			break;
-		default:
-			System.err.println("I am into default case");
-			break;
 		}
 		
+		for (Coordinate key: MapManager.getInstance().getSuccessors(currPos).keySet()) {
+			
+		}
 	}
+	
+	public boolean canAhead(WorldSpatial.Direction orientation, Coordinate currPos) {
+		MapManager.getInstance().getSuccessors(currPos);
+		HashMap<String, MapTile> dirSuccessors = MapManager.getInstance().getDirSuccessors();
+		
+		switch(orientation){
+		case EAST:
+			if(dirSuccessors.get("EAST") == null) {
+				return false;
+			}
+			else {
+				
+			}
+			
+		case NORTH:
+		case SOUTH:
+		case WEST:
+		default:
+			return false;
+	}
+	
+
 
 }
