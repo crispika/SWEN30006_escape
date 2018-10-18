@@ -74,7 +74,7 @@ public class SafeExplore {
 		else {
 			if (!clockwise) {
 				if(SafeExplore.getInstance().canSafeAhead(car.getOrientation(), currPos)) {
-					if( !SafeExplore.getInstance().succHasWall(currPos)) {
+					if( !SafeExplore.getInstance().succHasWall(currPos,car.getOrientation())) {
 						car.turnRight();
 					}
 					else {
@@ -87,7 +87,7 @@ public class SafeExplore {
 			}
 			else {
 				if(SafeExplore.getInstance().canSafeAhead(car.getOrientation(), currPos)) {
-					if( !SafeExplore.getInstance().succHasWall(currPos)) {
+					if( !SafeExplore.getInstance().succHasWall(currPos,car.getOrientation())) {
 						car.turnLeft();
 					}
 					else {
@@ -99,6 +99,35 @@ public class SafeExplore {
 				}
 			}
 		}
+		
+//		else {
+//			if(!clockwise) {
+//				if(canSafeAhead(car.getOrientation(), currPos)) {
+//					if(!succHasWall(currPos, car.getOrientation(), !clockwise)) {
+//						car.turnRight();
+//					}
+//					else {
+//						car.applyForwardAcceleration();
+//					}
+//				}
+//				else {
+//					car.turnLeft();
+//				}
+//			}
+//			else {
+//				if(canSafeAhead(car.getOrientation(), currPos)) {
+//					if(!succHasWall(currPos, car.getOrientation(), clockwise)) {
+//						car.turnLeft();
+//					}
+//					else {
+//						car.applyForwardAcceleration();
+//					}
+//				}
+//				else {
+//					car.turnRight();
+//				}
+//			}
+//		}
 	}
 	
 
@@ -168,6 +197,53 @@ public class SafeExplore {
 			return null;
 		}
 	}
+	
+	public Coordinate findBehindCoordinate(WorldSpatial.Direction orientation,Coordinate currPos) {
+		switch (orientation){
+		case EAST:
+			return new Coordinate(Integer.toString(currPos.x-1)+","+ Integer.toString(currPos.y));
+		case NORTH:
+			return new Coordinate(Integer.toString(currPos.x)+","+ Integer.toString(currPos.y-1));
+		case SOUTH:
+			return new Coordinate(Integer.toString(currPos.x)+","+ Integer.toString(currPos.y+1));
+		case WEST:
+			return new Coordinate(Integer.toString(currPos.x+1)+","+ Integer.toString(currPos.y));
+		default:
+			return null;
+		}
+	}
+	
+	
+	public Coordinate findLeftCoordinate(WorldSpatial.Direction orientation,Coordinate currPos) {
+		switch (orientation){
+		case EAST:
+			return new Coordinate(Integer.toString(currPos.x)+","+ Integer.toString(currPos.y+1));
+		case NORTH:
+			return new Coordinate(Integer.toString(currPos.x-1)+","+ Integer.toString(currPos.y));
+		case SOUTH:
+			return new Coordinate(Integer.toString(currPos.x+1)+","+ Integer.toString(currPos.y));
+		case WEST:
+			return new Coordinate(Integer.toString(currPos.x)+","+ Integer.toString(currPos.y-1));
+		default:
+			return null;
+		}
+	}
+	
+	public Coordinate findRightCoordinate(WorldSpatial.Direction orientation,Coordinate currPos) {
+		switch (orientation){
+		case EAST:
+			return new Coordinate(Integer.toString(currPos.x)+","+ Integer.toString(currPos.y-1));
+		case NORTH:
+			return new Coordinate(Integer.toString(currPos.x+1)+","+ Integer.toString(currPos.y));
+		case SOUTH:
+			return new Coordinate(Integer.toString(currPos.x-1)+","+ Integer.toString(currPos.y));
+		case WEST:
+			return new Coordinate(Integer.toString(currPos.x)+","+ Integer.toString(currPos.y+1));
+		default:
+			return null;
+		}
+	}
+	
 		
 	public MapTile checkNext(WorldSpatial.Direction orientation, Coordinate currPos) {
 		MapManager.getInstance().getSuccessors(currPos);
@@ -204,19 +280,60 @@ public class SafeExplore {
 		}
 	}
 	
-	public boolean succHasWall(Coordinate nextpos) {
+	public boolean succHasWall(Coordinate nextpos, WorldSpatial.Direction orientation) {
+		Coordinate nextNextPos = findNextCoordinate(orientation, nextpos); 
 		HashMap<Coordinate,MapTile> successors = MapManager.getInstance().getSuccessors(nextpos);
+		successors.remove(nextNextPos);
 		for (Coordinate key: successors.keySet()) {
+			if (nextpos.equals(new Coordinate(3,14))) {
+				System.err.println("nextPos: " + nextpos);
+				System.err.println("nextNextPos" + nextNextPos);
+				System.err.println(key);
+				System.err.println(orientation);
+			}
+			
+			
 			if(successors.get(key) == null) {
+				if (nextpos.equals(new Coordinate(3,14))) {
+					System.err.println("------------1---------------");
+				}
 				return true;
 			}
 			// in safeExplore, we assume all trap as wall
 			if(successors.get(key).isType(Type.TRAP)) {
+				if (nextpos.equals(new Coordinate(3,14))) {
+					System.err.println("------------2---------------");
+				}
 				return true;
 			}
 		}
 		return false;
 	}
-
+	
+//	public boolean succHasWall(Coordinate currPos, WorldSpatial.Direction orientation, boolean clockwise) {
+//		Coordinate nextpos = findNextCoordinate(orientation, currPos); 
+//		HashMap<Coordinate,MapTile> successors = MapManager.getInstance().getSuccessors(nextpos);
+//		if(clockwise) {
+//			Coordinate left = findLeftCoordinate(orientation, nextpos);
+//			if(successors.get(left) == null) {
+//				return true;
+//			}
+//			if(successors.get(left).isType(Type.TRAP)) {
+//				return true;
+//			}
+//			return false;
+//		}
+//		else {
+//			Coordinate right = findRightCoordinate(orientation, nextpos);
+//			if(successors.get(right) == null) {
+//				return true;
+//			}
+//			if(successors.get(right).isType(Type.TRAP)) {
+//				return true;
+//			}
+//			return false;
+//			
+//		}
+//	}
 
 }

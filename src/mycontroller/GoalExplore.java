@@ -18,6 +18,9 @@ public class GoalExplore {
 		return ge;
 	}
 	
+	public void initGoalExplore() {
+		MapManager.getInstance().clearGoalTempMap();
+	}
 	public void initialize(CarController car) {
 		this.car = car;
 	}
@@ -85,8 +88,10 @@ public class GoalExplore {
         System.out.println(action);
         switch (action) {
             case "forward":
+            	//MyAIController.setCarFoward(true);
                 car.applyForwardAcceleration(); break;
             case "back":
+            	//MyAIController.setCarFoward(false);
                 car.applyReverseAcceleration(); break;
             case "left":
                 car.turnLeft(); break;

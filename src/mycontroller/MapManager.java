@@ -11,6 +11,8 @@ import tiles.MapTile;
 import tiles.MudTrap;
 import tiles.MapTile.Type;
 import utilities.Coordinate;
+import world.WorldSpatial;
+import world.WorldSpatial.Direction;
 
 public class MapManager {
 	private static MapManager manager;
@@ -20,8 +22,8 @@ public class MapManager {
 	private HashMap<Coordinate, Boolean> scanMap = new HashMap<Coordinate,Boolean>();
 	private HashMap<Coordinate, MapTile> originMap = new HashMap<Coordinate, MapTile>();
 	private HashMap<Coordinate, MapTile> realMap = new HashMap<Coordinate, MapTile>();
-	private HashMap<Coordinate, MapTile> tempMap; // get all reachable points of traps scranned by every safeExplore;
-	
+	private HashMap<Coordinate, MapTile> tempMap = new HashMap<>(); // get all reachable points of traps scranned by every safeExplore;
+	private HashMap<Coordinate, MapTile> goalTempMap = new HashMap<>(); //get all reachable points of traps scranned by every goalExplore;
 	
 	private String START;
 	private Coordinate finish;
@@ -103,7 +105,12 @@ public class MapManager {
 					
 					if(currentView.get(furtherPos).isType(Type.TRAP)) {
 						
+						//System.out.println("-------------addtoSafeTemp-------------");
 						tempMap.put(furtherPos, currentView.get(furtherPos));
+						System.err.println("----------------addtoGoalTemp----------");
+						System.out.println(currentView.get(furtherPos));
+						goalTempMap.put(furtherPos, currentView.get(furtherPos));
+						
 						
 					}
 					setKeyInfo(furtherPos);
@@ -114,8 +121,12 @@ public class MapManager {
 					realMap.put(backPos, currentView.get(backPos));
 					
 					if(currentView.get(backPos).isType(Type.TRAP) && ! (currentView.get(backPos) instanceof MudTrap)) {
-						
+						//System.out.println("-------------addtoSafeTemp-------------");
 						tempMap.put(backPos, currentView.get(backPos));
+						System.err.println("----------------addtoGoalTemp----------");
+						System.out.println(currentView.get(backPos));
+						goalTempMap.put(backPos, currentView.get(backPos));
+						System.out.println(goalTempMap);
 						
 					}
 					setKeyInfo(backPos);
@@ -253,11 +264,19 @@ public class MapManager {
 	}
 	
 	public void clearTempMap() {
-		tempMap = new HashMap<>();
+		tempMap.clear();
+	}
+	
+	public void clearGoalTempMap() {
+		goalTempMap.clear();;
 	}
 	
 	public HashMap<Coordinate, MapTile> getTempMap(){
 		return tempMap;
+	}
+	
+	public HashMap<Coordinate, MapTile> getGoalTempMap(){
+		return goalTempMap;
 	}
 
 }
