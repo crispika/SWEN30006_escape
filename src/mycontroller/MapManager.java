@@ -33,6 +33,7 @@ public class MapManager {
 	private ArrayList<Coordinate> keylist = new ArrayList<Coordinate>();
 	private ArrayList<Coordinate> safePos = new ArrayList<Coordinate>();
 	private ArrayList<Coordinate> reachable = new ArrayList<Coordinate>();
+	private ArrayList<Coordinate> keytype = new ArrayList<>();
 	
 	private HashMap<String, MapTile> dirSuccessors ;
 	
@@ -126,13 +127,30 @@ public class MapManager {
 						//System.err.println("----------------addtoGoalTemp----------");
 						//System.out.println(currentView.get(backPos));
 						goalTempMap.put(backPos, currentView.get(backPos));
-						System.out.println(goalTempMap);
+						//System.out.println(goalTempMap);
 						
 					}
 					setKeyInfo(backPos);
 					setSafePos(backPos);
 				}
 			}
+		}
+	}
+	
+	public boolean foundAllkey() {
+		keytype.clear();;
+		for (Coordinate keyPos: keylist) {
+			if (isReachable(keyPos) && !keytype.contains(((LavaTrap)realMap.get(keyPos)).getKey())) {
+				keytype.add(keyPos);
+			}
+		}
+		if(keytype.size() == car.numKeys()) {
+			System.err.println("found all keys: " + keytype);
+			return true;
+		}
+		else {
+			System.err.println("only found keys: " + keytype);
+			return false;
 		}
 	}
 	
@@ -263,12 +281,26 @@ public class MapManager {
 		}
 	}
 	
+	public boolean isDeadRoad(Coordinate pos) { // to test if a goal to explore the new area is surrounded by over 2 walls/traps
+		int counter = 0;
+		HashMap<Coordinate, MapTile> successors = getSuccessors(pos);
+		for (Coordinate sucPos: successors.keySet()) {
+			if (successors.get(sucPos) == null || successors.get(sucPos).isType(Type.TRAP)) {
+				counter+=1;
+			}
+		}
+		if (counter >= 2) {
+			return true;
+		}
+		return false;
+	}
+	
 	public void clearTempMap() {
 		tempMap.clear();
 	}
 	
 	public void clearGoalTempMap() {
-		goalTempMap.clear();;
+		goalTempMap.clear();
 	}
 	
 	public HashMap<Coordinate, MapTile> getTempMap(){

@@ -1,16 +1,8 @@
 package mycontroller;
 
-import java.awt.RenderingHints.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Random;
-import java.util.concurrent.Future;
-
-import com.badlogic.gdx.Input.Orientation;
-
 import controller.CarController;
 import tiles.GrassTrap;
 import tiles.HealthTrap;
@@ -19,7 +11,6 @@ import tiles.MapTile;
 import tiles.MapTile.Type;
 import utilities.Coordinate;
 import world.Car;
-import world.WorldSpatial;
 
 public class MyAIController extends CarController{
 	
@@ -64,6 +55,9 @@ public class MyAIController extends CarController{
 		Coordinate currPos = new Coordinate(getPosition());
 		addVisted(currPos);
 		
+		if(MapManager.getInstance().foundAllkey()) {
+			System.exit(0);
+		}
 		
 	
 		if(currPos.equals(SafeExplore.getInstance().getHitWallPoint()) && safeCounter > 0 || stepCounter > 500){
@@ -91,8 +85,17 @@ public class MyAIController extends CarController{
 					trapCount.add("Grass");
 				}
 			}
-			//only lava case	
-			if (trapCount.size() == 1 && trapCount.contains("Lava")) {
+			
+			//no newly MapTile found;	
+			if(trapCount.size() == 0) {
+				System.err.println("---------------no new this detected --------------");
+				currGoal = healthDealer.randomPick(allunExplore);
+				GoalExplore.getInstance().initGoalExplore();
+				GoalExplore.getInstance().moveToPos(currGoal);
+				
+			}
+			//only lava case
+			else if (trapCount.size() == 1 && trapCount.contains("Lava")) {
 				currGoal = lavaDealer.chooseGoal(temp, visted,getHealth());
 				combineCanExplore(lavaDealer.getCanExplore());
 				inFire = lavaDealer.getInfire();
@@ -108,6 +111,7 @@ public class MyAIController extends CarController{
 				GoalExplore.getInstance().moveToPos(currGoal);
 			}
 			
+			//only health case
 			else if(trapCount.size() == 1 && trapCount.contains("Health")){
 				currGoal = healthDealer.chooseGoal(temp, visted, getHealth());
 				combineCanExplore(healthDealer.getCanExplore());
@@ -133,6 +137,8 @@ public class MyAIController extends CarController{
 				combineCanExplore(healthDealer.getCanExplore());
 				inHealth = healthDealer.getInHealth();
 				futureGoal = healthDealer.getFutureGoal();
+				System.err.println("-----getFutureGoal: " + futureGoal);
+				
 				GoalExplore.getInstance().initGoalExplore();
 				GoalExplore.getInstance().moveToPos(currGoal);
 			}
@@ -190,6 +196,7 @@ public class MyAIController extends CarController{
 					//System.out.println("cleanedTemp: " + temp);
 					ArrayList<Coordinate> localcanExplore = lavaDealer.canExplore(temp,visted);
 					System.err.println("Canexplore: " + localcanExplore);
+					combineCanExplore(localcanExplore);
 					possibleGoal = lavaDealer.nearestSafePoint(localcanExplore, currPos);
 					System.err.println("posiblegoal: "+possibleGoal);
 					
@@ -197,6 +204,7 @@ public class MyAIController extends CarController{
 					GoalExplore.getInstance().initGoalExplore();
 					GoalExplore.getInstance().moveToPos(currGoal);
 					inFire = false;
+					lavaDealer.setInfire();
 					System.err.println("-------------infire set to false---------------");
 					System.out.println("-----------get the key-----------");
 					
@@ -224,8 +232,9 @@ public class MyAIController extends CarController{
 						System.out.println("---------------stop for getting health---------------");
 					}
 					else {
-						if(MapManager.getInstance().getrealMap().get(futureGoal).isType(Type.ROAD)) {
+						if(MapManager.getInstance().getrealMap().get(futureGoal).isType(Type.ROAD) && !MapManager.getInstance().isDeadRoad(futureGoal)) {
 							currGoal = futureGoal;
+							System.err.println("future goal can work : " + futureGoal);
 						}
 						else {
 							HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
@@ -233,13 +242,15 @@ public class MyAIController extends CarController{
 							cleanTemp(temp);
 							//System.out.println("cleanedTemp: " + temp);
 							ArrayList<Coordinate> canExplore = lavaDealer.canExplore(temp,visted);
-							System.err.println("Canexplore: " + canExplore);
+							System.err.println("inHealth case, redetected Canexplore goal: " + canExplore);
 							combineCanExplore(canExplore);
 							currGoal = healthDealer.randomPick(canExplore);
+							System.err.println("future goal can't work, changed to goal: " + currGoal);
 						}
 						
 						System.out.println("health 100, move to futureGoal: " + futureGoal);
 						inHealth = false;
+						healthDealer.setInHealth();
 						System.out.println("-------------inhealth setted to false-----------------");
 						GoalExplore.getInstance().initGoalExplore();
 						GoalExplore.getInstance().moveToPos(currGoal);
@@ -292,10 +303,7 @@ public class MyAIController extends CarController{
 		Iterator<Coordinate> iterator = allunExplore.iterator();
 		while(iterator.hasNext()) {
 			Coordinate pos =iterator.next();
-			if (visted.contains(pos)) {
-				iterator.remove();
-			}
-			if(!MapManager.getInstance().getrealMap().get(pos).isType(Type.ROAD)) {
+			if (visted.contains(pos) || !MapManager.getInstance().getrealMap().get(pos).isType(Type.ROAD)) {
 				iterator.remove();
 			}
 		}

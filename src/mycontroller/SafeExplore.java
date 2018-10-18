@@ -3,6 +3,7 @@ package mycontroller;
 import java.util.HashMap;
 
 import controller.CarController;
+import tiles.HealthTrap;
 import tiles.MapTile;
 import tiles.MapTile.Type;
 import utilities.Coordinate;
@@ -409,7 +410,7 @@ public class SafeExplore {
 				if(mapTile_l == null || !MapManager.getInstance().isReachable(left)){
 					return false;
 				}
-				if(!mapTile_l.isType(Type.WALL) && !mapTile_l.isType(Type.TRAP) && !mapTile_l.isType(Type.EMPTY)){
+				if(mapTile_l instanceof HealthTrap ||(!mapTile_l.isType(Type.WALL) && !mapTile_l.isType(Type.TRAP) && !mapTile_l.isType(Type.EMPTY))){
 					return true;
 				}
 				break;
@@ -419,7 +420,7 @@ public class SafeExplore {
 				if(mapTile_r == null || !MapManager.getInstance().isReachable(right)){
 					return false;
 				}
-				if(!mapTile_r.isType(Type.WALL) && !mapTile_r.isType(Type.TRAP) && !mapTile_r.isType(Type.EMPTY)){
+				if(mapTile_r instanceof HealthTrap ||(!mapTile_r.isType(Type.WALL) && !mapTile_r.isType(Type.TRAP) && !mapTile_r.isType(Type.EMPTY))){
 					return true;
 				}
 				break;
@@ -429,7 +430,7 @@ public class SafeExplore {
 				if(mapTile_a == null || !MapManager.getInstance().isReachable(ahead)){
 					return false;
 				}
-				if(!mapTile_a.isType(Type.WALL) && !mapTile_a.isType(Type.TRAP) && !mapTile_a.isType(Type.EMPTY)){
+				if(mapTile_a instanceof HealthTrap ||(!mapTile_a.isType(Type.WALL) && !mapTile_a.isType(Type.TRAP) && !mapTile_a.isType(Type.EMPTY))){
 					return true;
 				}
 				break;

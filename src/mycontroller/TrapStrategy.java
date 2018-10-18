@@ -13,6 +13,7 @@ import utilities.Coordinate;
 import world.WorldSpatial;
 
 public abstract class TrapStrategy {
+	
 	protected ArrayList<Coordinate> canExplore;
 	
 	public abstract Coordinate chooseGoal(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted,float health);

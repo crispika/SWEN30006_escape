@@ -23,10 +23,11 @@ public class HealthStrategy extends TrapStrategy{
 		canExplore.addAll(canExplore(temp,visted));
 		if(health < 100) {
 			Coordinate currGoal = randomPickHealthPos(temp);
+			System.err.println("-----------health point goal is setted to: " + currGoal);
 			futureGoal = randomPick(canExplore);
-			System.out.println("-------------futureGoal setted to:" + futureGoal);
+			System.err.println("-------------futureGoal setted to: " + futureGoal);
 			inHealth = true;
-			System.out.println("---------------in health setted to true--------------------");
+			System.err.println("---------------in health setted to true--------------------");
 			return currGoal;
 		}
 		else {
@@ -45,6 +46,10 @@ public class HealthStrategy extends TrapStrategy{
 	
 	public Coordinate getFutureGoal() {
 		return futureGoal;
+	}
+	
+	public void setInHealth() {
+		inHealth = false;
 	}
 	
 	

@@ -42,6 +42,10 @@ public class LavaStrategy extends TrapStrategy{
 		return inFire;
 	}
 	
+	public void setInfire() {
+		inFire = false;
+	}
+	
 	public LinkedList<Coordinate> lavaKey(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted){
 		
 		LinkedList<Coordinate> keyPos = new LinkedList<>();
@@ -72,7 +76,7 @@ public class LavaStrategy extends TrapStrategy{
 		if (keyPos.size() == 1 && keyPos.contains(new Coordinate(-9999,-9999))) {
 			keyPos.clear();
 		}
-		System.err.println("key array: "+ keyPos);
+		System.err.println("-------------got key array: "+ keyPos);
 		return keyPos;
 		
 	}
