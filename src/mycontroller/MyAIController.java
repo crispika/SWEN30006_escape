@@ -20,6 +20,9 @@ import world.Car;
 import world.WorldSpatial;
 
 public class MyAIController extends CarController{
+	
+	private GrassStrategy grassDealer = new GrassStrategy();
+	private LavaStrategy lavaDealer = new LavaStrategy();
 
 	private final int CAR_MAX_SPEED = 1;
 	private int view;
@@ -31,10 +34,11 @@ public class MyAIController extends CarController{
 	private boolean inFire = false;
 	private int stepCounter = 0;
 	//private static boolean carForward = true;
-	private Coordinate escapePoint;
+	//private Coordinate escapePoint;
 	private Coordinate possibleGoal; // when catching the key, if the calculated escapePoint is a undetected lava, use this goal to escape to the safepoint
 	
-	private LinkedList<Coordinate> keyPos = new LinkedList<>();
+	private ArrayList<Coordinate> allunExplore = new ArrayList<>();// maybe for use of collect all unExplore points
+	
 	
 	public MyAIController(Car car) {
 		super(car);
@@ -69,7 +73,7 @@ public class MyAIController extends CarController{
 			
 			HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getTempMap();
 			cleanTemp(temp);
-			System.err.println("Safetemp: " + temp);
+			//System.err.println("Safetemp: " + temp);
 		
 			
 			Boolean onlyHealth = true;
@@ -97,38 +101,18 @@ public class MyAIController extends CarController{
 				
 				if (trapCount.size() == 1 && trapCount.contains("Lava")) {
 					
-					keyPos.clear();
-					keyPos.addAll(lavaKey(temp));
-					
-					System.out.println("KeyPos After: " + keyPos);
-					
-					ArrayList<Coordinate> canExplore = canExplore(temp);
-					
-					if(keyPos.size() == 0) {
-						currGoal = randomPick(canExplore);
-						GoalExplore.getInstance().initGoalExplore();
-						GoalExplore.getInstance().moveToPos(currGoal);
-						System.err.println(currGoal);
-						System.out.println("canExplore: "+canExplore);
-					}
-					else{
-						currGoal = keyPos.pollLast();
-						inFire = true;
-						System.err.println("!!! infire has been setted");
-						System.out.println("------------------------init tempMap ---------------------");
-						GoalExplore.getInstance().initGoalExplore();
-						GoalExplore.getInstance().moveToPos(currGoal);
-					}
+					currGoal = lavaDealer.chooseGoal(temp, visted);
+					inFire = lavaDealer.getInfire();
+					GoalExplore.getInstance().initGoalExplore();
+					GoalExplore.getInstance().moveToPos(currGoal);
 					
 				}
 				else if(trapCount.size() == 1 && trapCount.contains("Grass")) {
-					ArrayList<Coordinate> canExplore = canExplore(temp);
 					
-					if(canExplore.size()>0) {
-						currGoal = randomPick(canExplore);
-						GoalExplore.getInstance().initGoalExplore();
-						GoalExplore.getInstance().moveToPos(currGoal);
-					}
+					currGoal = grassDealer.chooseGoal(temp, visted);
+					GoalExplore.getInstance().initGoalExplore();
+					GoalExplore.getInstance().moveToPos(currGoal);
+					
 				}
 				//Strategy combine Lava and Grass
 				else {
@@ -179,21 +163,23 @@ public class MyAIController extends CarController{
 //					else {
 //						currGoal = backToSafePoint(getOrientation(), currPos);
 //					}
-					currGoal = escapePoint;
+					System.out.println("escapePoint: " + lavaDealer.getescapePoint());
+					currGoal = lavaDealer.getescapePoint();
 					
 					HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
-					System.out.println("originTemp: " + temp);
+					//System.out.println("originTemp: " + temp);
 					cleanTemp(temp);
-					System.out.println("cleanedTemp: " + temp);
-					ArrayList<Coordinate> canExplore = canExplore(temp);
+					//System.out.println("cleanedTemp: " + temp);
+					ArrayList<Coordinate> canExplore = lavaDealer.canExplore(temp,visted);
 					System.err.println("Canexplore: " + canExplore);
-					
-					possibleGoal = nearestSafePoint(canExplore, currPos);
+					possibleGoal = lavaDealer.nearestSafePoint(canExplore, currPos);
 					System.err.println("posiblegoal: "+possibleGoal);
+					
 					
 					GoalExplore.getInstance().initGoalExplore();
 					GoalExplore.getInstance().moveToPos(currGoal);
 					inFire = false;
+					System.out.println("-------------infire set to false---------------");
 					System.out.println("-----------get the key-----------");
 					
 				}
@@ -209,6 +195,7 @@ public class MyAIController extends CarController{
 //					}
 					
 					currGoal = possibleGoal;
+					
 					GoalExplore.getInstance().initGoalExplore();
 					GoalExplore.getInstance().moveToPos(currGoal);
 					
@@ -237,6 +224,19 @@ public class MyAIController extends CarController{
 			visted.add(pos);
 		}
 	}
+	
+	//remove unreachable points from newly detected tempHashmap 
+	public void cleanTemp(HashMap<Coordinate, MapTile> temp) {
+		MapManager.getInstance().resetReachable();
+		Iterator<Coordinate> iterator = temp.keySet().iterator();
+		while(iterator.hasNext()) {
+			Coordinate pos = iterator.next();
+			if(!MapManager.getInstance().isReachable(pos)) {
+				iterator.remove();
+			}
+		}
+	}
+	
 
 	
 	//For test
@@ -253,120 +253,10 @@ public class MyAIController extends CarController{
 		
 	}
 	
-	public Coordinate hasAvailableRoad(Coordinate pos, MapTile trap) {
-		HashMap<Coordinate, MapTile> successors = MapManager.getInstance().getSuccessors(pos);
-		for (Coordinate sucPos : successors.keySet()) {
-			if(successors.get(sucPos) != null) {
-				if(successors.get(sucPos).isType(Type.ROAD) && !visted.contains(sucPos)) {
-					return sucPos;
-				}
-			}
-		}
-		return null;
-	}
-	
-	public ArrayList<Coordinate> canExplore(HashMap<Coordinate, MapTile> temp) {
-		ArrayList<Coordinate> canExplore = new ArrayList<>();
-		for (Coordinate pos : temp.keySet()) {
-			if(hasAvailableRoad(pos, temp.get(pos)) != null) {
-				canExplore.add(hasAvailableRoad(pos, temp.get(pos)));
-			}
-		}
-		
-		return canExplore;
-	}
-	
-	public Coordinate randomPick(ArrayList<Coordinate> canExplore) {
-		Random random = new Random();
-		int index = random.nextInt(canExplore.size());
-		Coordinate goal = canExplore.get(index);
-		return goal;
-	}
-	
-	public Coordinate backToSafePoint(WorldSpatial.Direction orientation, Coordinate currPos) {
-		Coordinate goal = null;
-		Coordinate tempPos = currPos;
-		System.err.println("currPos: "+ tempPos);
-		while(goal == null) {
-			Coordinate nextPos = SafeExplore.getInstance().findBehindCoordinate(orientation, tempPos);
-			System.err.println("nextPos"+nextPos);
-			tempPos = nextPos;
-			if(MapManager.getInstance().getrealMap().get(nextPos).isType(Type.ROAD)) {
-				goal = nextPos;
-			}
-		}
-		return goal;
-	}
-	
-	public Coordinate escapetoOutPoint(WorldSpatial.Direction orientation, Coordinate currPos) {
-		Coordinate goal = null;
-		Coordinate tempPos = currPos;
-		while(goal == null) {
-			Coordinate nextPos = SafeExplore.getInstance().findNextCoordinate(orientation, tempPos);
-			tempPos = nextPos;
-			System.out.println("nextPos: "+ nextPos);
-			if(MapManager.getInstance().getrealMap().get(nextPos).isType(Type.ROAD)) {
-				goal = nextPos;
-			}
-		}
-		System.err.println("escapte point: " + goal);
-		return goal;
-	}
-	
-	public LinkedList<Coordinate> lavaKey(HashMap<Coordinate, MapTile> temp){
-		
-		LinkedList<Coordinate> keyPos = new LinkedList<>();
-		for (Coordinate pos: temp.keySet()) {
-			int keyNo = ((LavaTrap)temp.get(pos)).getKey();
-			if( keyNo > 0 && MapManager.getInstance().isReachable(pos)) {
-				keyPos.add(pos);
-			}
-		}
-		ArrayList<Coordinate> canExplore = canExplore(temp);
-		Coordinate outsidePos = randomPick(canExplore);
-		escapePoint = outsidePos;
-		Coordinate outKey = new Coordinate(-9999,-9999);
-		int nearest = 99999;
-		for (Coordinate keypos: keyPos) {
-			int mDistance = Math.abs(keypos.x - outsidePos.x) + Math.abs(keypos.y - outsidePos.y);
-			if(mDistance < nearest){
-				nearest = mDistance;
-				outKey = keypos;
-			}
-		}
-		keyPos.remove(outKey);
-		keyPos.addLast(outKey);
-		System.err.println("key array: "+ keyPos);
-		return keyPos;
-		
-	}
-	
-	//remove unreachable points from newly detected tempHashmap 
-	public void cleanTemp(HashMap<Coordinate, MapTile> temp) {
-		MapManager.getInstance().resetReachable();
-		Iterator<Coordinate> iterator = temp.keySet().iterator();
-		while(iterator.hasNext()) {
-			Coordinate pos = iterator.next();
-			if(!MapManager.getInstance().isReachable(pos)) {
-				iterator.remove();
-			}
-		}
-	}
-	
-	public Coordinate nearestSafePoint(ArrayList<Coordinate> canExplore, Coordinate currPos) {
-		int nearest = 99999;
-		Coordinate nearPos = new Coordinate(-9999,-9999);
-		for(Coordinate pos: canExplore) {
-			if((Math.abs(pos.x - currPos.x) + Math.abs(pos.y - currPos.y)) < nearest){
-				nearest = Math.abs(pos.x - currPos.x) + Math.abs(pos.y - currPos.y);
-				nearPos = pos;
-			}
-		}
-		return nearPos;
-	}
 	
 //	public static void setCarFoward(boolean carOrien) {
 //		carForward = carOrien; 
 //	}
 	
+
 }

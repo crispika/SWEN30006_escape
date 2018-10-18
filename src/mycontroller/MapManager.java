@@ -107,8 +107,8 @@ public class MapManager {
 						
 						//System.out.println("-------------addtoSafeTemp-------------");
 						tempMap.put(furtherPos, currentView.get(furtherPos));
-						System.err.println("----------------addtoGoalTemp----------");
-						System.out.println(currentView.get(furtherPos));
+						//System.err.println("----------------addtoGoalTemp----------");
+						//System.out.println(currentView.get(furtherPos));
 						goalTempMap.put(furtherPos, currentView.get(furtherPos));
 						
 						
@@ -123,8 +123,8 @@ public class MapManager {
 					if(currentView.get(backPos).isType(Type.TRAP) && ! (currentView.get(backPos) instanceof MudTrap)) {
 						//System.out.println("-------------addtoSafeTemp-------------");
 						tempMap.put(backPos, currentView.get(backPos));
-						System.err.println("----------------addtoGoalTemp----------");
-						System.out.println(currentView.get(backPos));
+						//System.err.println("----------------addtoGoalTemp----------");
+						//System.out.println(currentView.get(backPos));
 						goalTempMap.put(backPos, currentView.get(backPos));
 						System.out.println(goalTempMap);
 						
