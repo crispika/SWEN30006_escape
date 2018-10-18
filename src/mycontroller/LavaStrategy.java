@@ -10,9 +10,9 @@ import utilities.Coordinate;
 
 public class LavaStrategy extends TrapStrategy{
 	
-	private Coordinate escapePoint;
+	
 	private LinkedList<Coordinate> keyPos = new LinkedList<>();
-	private boolean inFire = false;
+	
 	
 	@Override
 	public Coordinate chooseGoal(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted,float health) {
@@ -25,10 +25,13 @@ public class LavaStrategy extends TrapStrategy{
 		canExplore.addAll(canExplore(temp,visted));
 		
 		if(keyPos.size() == 0) {
-			Coordinate currGoal = randomPick(canExplore);
-			System.err.println(currGoal);
-			System.out.println("canExplore: "+canExplore);
-			return currGoal;
+			if(canExplore.size() > 0) {
+				Coordinate currGoal = randomPick(canExplore);
+				System.err.println(currGoal);
+				System.out.println("canExplore: "+canExplore);
+				return currGoal;
+			}
+			return null;
 		}
 		else{
 			Coordinate currGoal = keyPos.pollLast();
@@ -38,21 +41,17 @@ public class LavaStrategy extends TrapStrategy{
 		}
 	}
 	
-	public boolean getInfire() {
-		return inFire;
-	}
-	
-	public void setInfire() {
-		inFire = false;
-	}
+
 	
 	public LinkedList<Coordinate> lavaKey(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted){
 		
 		LinkedList<Coordinate> keyPos = new LinkedList<>();
 		for (Coordinate pos: temp.keySet()) {
-			int keyNo = ((LavaTrap)temp.get(pos)).getKey();
-			if( keyNo > 0 && MapManager.getInstance().isReachable(pos)) {
-				keyPos.add(pos);
+			if(temp.get(pos) instanceof LavaTrap) {
+				int keyNo = ((LavaTrap)temp.get(pos)).getKey();
+				if( keyNo > 0 && MapManager.getInstance().isReachable(pos)) {
+					keyPos.add(pos);
+				}
 			}
 		}
 		ArrayList<Coordinate> canExplore = canExplore(temp, visted);
@@ -81,9 +80,7 @@ public class LavaStrategy extends TrapStrategy{
 		
 	}
 	
-	public Coordinate getescapePoint() {
-		return escapePoint;
-	}
+
 	
 	
 	public Coordinate nearestSafePoint(ArrayList<Coordinate> canExplore, Coordinate currPos) {

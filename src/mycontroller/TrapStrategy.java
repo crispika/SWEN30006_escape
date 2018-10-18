@@ -15,6 +15,8 @@ import world.WorldSpatial;
 public abstract class TrapStrategy {
 	
 	protected ArrayList<Coordinate> canExplore;
+	protected boolean inFire = false;
+	protected Coordinate escapePoint;
 	
 	public abstract Coordinate chooseGoal(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted,float health);
 	
@@ -56,7 +58,14 @@ public abstract class TrapStrategy {
 		return canExplore;
 	}
 	
+	public boolean getInfire() {
+		return inFire;
+	}
+
 	
+	public Coordinate getescapePoint() {
+		return escapePoint;
+	}
 //	
 //	public Coordinate backToSafePoint(WorldSpatial.Direction orientation, Coordinate currPos) {
 //		Coordinate goal = null;

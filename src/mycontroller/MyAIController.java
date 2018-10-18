@@ -3,6 +3,8 @@ package mycontroller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.PrimitiveIterator.OfDouble;
+
 import controller.CarController;
 import tiles.GrassTrap;
 import tiles.HealthTrap;
@@ -34,6 +36,7 @@ public class MyAIController extends CarController{
 	
 	private ArrayList<Coordinate> allunExplore = new ArrayList<>();// maybe for use of collect all unExplore points
 	private static boolean carForward = true;
+	private Coordinate escapeGoal;
 	
 	public MyAIController(Car car) {
 		super(car);
@@ -89,57 +92,68 @@ public class MyAIController extends CarController{
 			//no newly MapTile found;	
 			if(trapCount.size() == 0) {
 				System.err.println("---------------no new this detected --------------");
-				currGoal = healthDealer.randomPick(allunExplore);
-				GoalExplore.getInstance().initGoalExplore();
+				combineCanExplore(new ArrayList<>());
+				if(allunExplore.size() > 0) {
+					currGoal = healthDealer.randomPick(allunExplore);
+				}
+				else {
+					currGoal = healthDealer.randomPick(MapManager.getInstance().unScannedPoint());
+				}
+				
+				System.err.println("------currGoal is setted to: " + currGoal);
+				//GoalExplore.getInstance().initGoalExplore();
 				GoalExplore.getInstance().moveToPos(currGoal);
 				
 			}
-			//only lava case
-			else if (trapCount.size() == 1 && trapCount.contains("Lava")) {
+			//only lava case or "lava and grass" case, use lavadealer to solve
+			else if (trapCount.size() == 1 && trapCount.contains("Lava")
+					|| (trapCount.size() == 2 && trapCount.contains("Grass") && trapCount.contains("Lava"))) {
 				currGoal = lavaDealer.chooseGoal(temp, visted,getHealth());
+				if(currGoal == null) {
+					currGoal = lavaDealer.randomPick(allunExplore);
+				}
 				combineCanExplore(lavaDealer.getCanExplore());
 				inFire = lavaDealer.getInfire();
-				GoalExplore.getInstance().initGoalExplore();
+				System.err.println("----------inFire is: " + inFire);
+				escapeGoal = lavaDealer.getescapePoint();
+				System.err.println("--------received escape point: "+ escapeGoal);
+				//GoalExplore.getInstance().initGoalExplore();
 				GoalExplore.getInstance().moveToPos(currGoal);
 					
 			}
 			//only grass case
 			else if(trapCount.size() == 1 && trapCount.contains("Grass")) {		
 				currGoal = grassDealer.chooseGoal(temp, visted,getHealth());
+				if(currGoal == null) {
+					currGoal = grassDealer.randomPick(allunExplore);
+				}
 				combineCanExplore(grassDealer.getCanExplore());
-				GoalExplore.getInstance().initGoalExplore();
+				//GoalExplore.getInstance().initGoalExplore();
 				GoalExplore.getInstance().moveToPos(currGoal);
 			}
 			
-			//only health case
-			else if(trapCount.size() == 1 && trapCount.contains("Health")){
+			//when found health trap:
+			else{
 				currGoal = healthDealer.chooseGoal(temp, visted, getHealth());
+				if(currGoal == null) {
+					currGoal = healthDealer.randomPick(allunExplore);
+				}
+				
+				System.out.println("--------Health case: currGoal: " + currGoal);
 				combineCanExplore(healthDealer.getCanExplore());
 				inHealth = healthDealer.getInHealth();
+				inFire = healthDealer.getInfire();
+				System.err.println("----------inFire is: " + inFire);
+				escapeGoal = healthDealer.getescapePoint();
+				System.err.println("--------received escape point: "+ escapeGoal);
+				
 				futureGoal = healthDealer.getFutureGoal();
+				if (futureGoal.equals(new Coordinate(-1,-1))) {
+					futureGoal = healthDealer.randomPick(allunExplore);
+				}
 				System.err.println("-----getFutureGoal: " + futureGoal);
 				
-				GoalExplore.getInstance().initGoalExplore();
-				GoalExplore.getInstance().moveToPos(currGoal);
-				
-			}
-			//Strategy combine Lava and Grass 
-			else if(trapCount.size() == 2 && trapCount.contains("Grass") && trapCount.contains("Lava")) {
-				//Use grass case to solve, don't achieve for the key on the way;
-				currGoal = grassDealer.chooseGoal(temp, visted,getHealth());
-				combineCanExplore(grassDealer.getCanExplore());
-				GoalExplore.getInstance().initGoalExplore();
-				GoalExplore.getInstance().moveToPos(currGoal);
-			}
-			else {
-				//other case same as pure health case
-				currGoal = healthDealer.chooseGoal(temp, visted, getHealth());
-				combineCanExplore(healthDealer.getCanExplore());
-				inHealth = healthDealer.getInHealth();
-				futureGoal = healthDealer.getFutureGoal();
-				System.err.println("-----getFutureGoal: " + futureGoal);
-				
-				GoalExplore.getInstance().initGoalExplore();
+				//GoalExplore.getInstance().initGoalExplore();
 				GoalExplore.getInstance().moveToPos(currGoal);
 			}
 		}
@@ -156,47 +170,15 @@ public class MyAIController extends CarController{
 		else {
 			if(currPos.equals(currGoal)) {
 				System.err.println(currGoal);
-				//get all key find
-//				if(inFire && keyPos.size()> 1) {
-//					System.out.println("---------------infire--------------");
-//					currGoal = backToSafePoint(getOrientation(), currPos);
-//					System.err.println("backToGoal"+currGoal);
-//					inFire =false;
-//				}
-//				else if(!inFire && keyPos.size()>0) {
-//					currGoal = keyPos.pollFirst();
-//					inFire = true;
-//					System.err.println("!!! infire has been setted");
-//					GoalExplore.getInstance().moveToPos(currGoal);
-//					
-//				}
-//				else if (inFire && keyPos.size() ==1) {
-//					//TODO Escape
-//					currGoal = escapetoOutPoint(getOrientation(), currPos);
-//					inFire = false;
-//				}
 				if(inFire) {
 					System.out.println("-------------------infire---------------------");
 					//TODO Escape after get key:
-//					System.out.println("speed: "+ getSpeed());
-//					System.out.println(getOrientation());
-//					System.out.println("currPos: " + currPos);
-//					if(carForward) {
-//						currGoal = escapetoOutPoint(getOrientation(), currPos);
-//					}
-//					else {
-//						currGoal = backToSafePoint(getOrientation(), currPos);
-//					}
 					System.out.println("escaping to: " + lavaDealer.getescapePoint());
 
 					//ArrayList canExplore = lavaDealer.getCanExplore();
-					currGoal = lavaDealer.getescapePoint();
-
-
-
-
-
+					currGoal = escapeGoal;
 					
+					//for possible goal is escapePoint is not valid
 					HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
 					//System.out.println("originTemp: " + temp);
 					cleanTemp(temp);
@@ -208,30 +190,19 @@ public class MyAIController extends CarController{
 					System.err.println("posiblegoal: "+possibleGoal);
 					
 					
-					GoalExplore.getInstance().initGoalExplore();
-					GoalExplore.getInstance().moveToPos(currGoal);
+					//GoalExplore.getInstance().initGoalExplore();
+					//GoalExplore.getInstance().moveToPos(currGoal);
 					inFire = false;
-					lavaDealer.setInfire();
 					System.err.println("-------------infire set to false---------------");
 					System.out.println("-----------get the key-----------");
 					
 				}
-				else if( MapManager.getInstance().getrealMap().get(currPos) instanceof LavaTrap) {
+				else if(MapManager.getInstance().getrealMap().get(currPos) instanceof LavaTrap) {
 					System.out.println("---------------escaping by explore-----------------");
 					//TODO Escape from undetected lavaTrap:
-//					System.out.println("speed: "+ getSpeed());
-//					if(carForward) {
-//						currGoal = escapetoOutPoint(getOrientation(), currPos);
-//					}
-//					else {
-//						currGoal = backToSafePoint(getOrientation(), currPos);
-//					}
-					
 					currGoal = possibleGoal;
-					GoalExplore.getInstance().initGoalExplore();
-					GoalExplore.getInstance().moveToPos(currGoal);
-					
-					
+					//GoalExplore.getInstance().initGoalExplore();
+					//GoalExplore.getInstance().moveToPos(currGoal);
 				}
 				else if(inHealth) {
 					if (getHealth()<100) {
@@ -239,7 +210,8 @@ public class MyAIController extends CarController{
 						System.out.println("---------------stop for getting health---------------");
 					}
 					else {
-						if(MapManager.getInstance().getrealMap().get(futureGoal).isType(Type.ROAD) && !MapManager.getInstance().isDeadRoad(futureGoal)) {
+						MapTile futuregoal = MapManager.getInstance().getrealMap().get(futureGoal);
+						if( (futuregoal.isType(Type.ROAD) || futuregoal instanceof HealthTrap) && !MapManager.getInstance().isDeadRoad(futureGoal)) {
 							currGoal = futureGoal;
 							System.err.println("future goal can work : " + futureGoal);
 						}
@@ -257,10 +229,9 @@ public class MyAIController extends CarController{
 						
 						System.out.println("health 100, move to futureGoal: " + futureGoal);
 						inHealth = false;
-						healthDealer.setInHealth();
 						System.out.println("-------------inhealth setted to false-----------------");
-						GoalExplore.getInstance().initGoalExplore();
-						GoalExplore.getInstance().moveToPos(currGoal);
+						//GoalExplore.getInstance().initGoalExplore();
+						//GoalExplore.getInstance().moveToPos(currGoal);
 					}
 					
 				}
@@ -315,7 +286,8 @@ public class MyAIController extends CarController{
 		Iterator<Coordinate> iterator = allunExplore.iterator();
 		while(iterator.hasNext()) {
 			Coordinate pos =iterator.next();
-			if (visted.contains(pos) || !MapManager.getInstance().getrealMap().get(pos).isType(Type.ROAD)) {
+			if (visted.contains(pos) || !MapManager.getInstance().getrealMap().get(pos).isType(Type.ROAD) 
+					|| !MapManager.getInstance().isReachable(pos)) {
 				iterator.remove();
 			}
 		}

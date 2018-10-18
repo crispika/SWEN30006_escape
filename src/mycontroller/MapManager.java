@@ -137,8 +137,20 @@ public class MapManager {
 		}
 	}
 	
+	public ArrayList<Coordinate> unScannedPoint(){
+		resetReachable();
+		ArrayList<Coordinate> unScannedPoint = new ArrayList<>();
+		for (Coordinate key: scanMap.keySet()) {
+			if(scanMap.get(key) == false || isReachable(key)) {
+				unScannedPoint.add(key);
+			}
+		}
+		return unScannedPoint;
+	}
+	
 	public boolean foundAllkey() {
 		keytype.clear();;
+		resetReachable();
 		for (Coordinate keyPos: keylist) {
 			if (isReachable(keyPos) && !keytype.contains(((LavaTrap)realMap.get(keyPos)).getKey())) {
 				keytype.add(keyPos);
@@ -285,7 +297,8 @@ public class MapManager {
 		int counter = 0;
 		HashMap<Coordinate, MapTile> successors = getSuccessors(pos);
 		for (Coordinate sucPos: successors.keySet()) {
-			if (successors.get(sucPos) == null || successors.get(sucPos).isType(Type.TRAP)) {
+			if (successors.get(sucPos) == null || 
+					(successors.get(sucPos).isType(Type.TRAP) && !(successors.get(sucPos) instanceof HealthTrap))) {
 				counter+=1;
 			}
 		}
