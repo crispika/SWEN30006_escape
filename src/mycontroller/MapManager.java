@@ -20,7 +20,8 @@ public class MapManager {
 	private HashMap<Coordinate, Boolean> scanMap = new HashMap<Coordinate,Boolean>();
 	private HashMap<Coordinate, MapTile> originMap = new HashMap<Coordinate, MapTile>();
 	private HashMap<Coordinate, MapTile> realMap = new HashMap<Coordinate, MapTile>();
-	//private HashMap<Coordinate, MapTile>  currentView;
+	private HashMap<Coordinate, MapTile> tempMap; // get all reachable points of traps scranned by every safeExplore;
+	
 	
 	private String START;
 	private Coordinate finish;
@@ -99,12 +100,24 @@ public class MapManager {
 				if (originMap.containsKey(furtherPos) && !scanMap.get(furtherPos)) {
 					scanMap.put(furtherPos, true);
 					realMap.put(furtherPos, currentView.get(furtherPos));
+					
+					if(currentView.get(furtherPos).isType(Type.TRAP)) {
+						
+						tempMap.put(furtherPos, currentView.get(furtherPos));
+						
+					}
 					setKeyInfo(furtherPos);
 					setSafePos(furtherPos);
 				}
 				if (originMap.containsKey(backPos) && !scanMap.get(backPos)) {
 					scanMap.put(backPos, true);
 					realMap.put(backPos, currentView.get(backPos));
+					
+					if(currentView.get(backPos).isType(Type.TRAP) && ! (currentView.get(backPos) instanceof MudTrap)) {
+						
+						tempMap.put(backPos, currentView.get(backPos));
+						
+					}
 					setKeyInfo(backPos);
 					setSafePos(backPos);
 				}
@@ -225,7 +238,11 @@ public class MapManager {
 		}
 	}
 
-
+	public void resetReachable() {
+		reachable = Search.DFS(start);
+		cleanReachable();
+	}
+	
 	public boolean isReachable(Coordinate pos) {
 		if (reachable.contains(pos)) {
 			return true;
@@ -234,6 +251,13 @@ public class MapManager {
 			return false;
 		}
 	}
-
+	
+	public void clearTempMap() {
+		tempMap = new HashMap<>();
+	}
+	
+	public HashMap<Coordinate, MapTile> getTempMap(){
+		return tempMap;
+	}
 
 }
