@@ -14,17 +14,17 @@ public class ManualController extends CarController {
 	
 	public ManualController(Car car){
 		super(car);
-		MapManager.getInstance().initialize(this);
+//		MapManager.getInstance().initialize(this);
 	}
 	
 	public void update(){
 		//System.out.println(MapManager.getInstance().getrealMap());
-		MapManager.getInstance().setScanMap();
-		for (Coordinate key : MapManager.getInstance().getrealMap().keySet()) {
-			if(MapManager.getInstance().getrealMap().get(key) instanceof LavaTrap) {
-				System.out.println("I found lava!!!!!!!!!!!!");
-			}
-		}
+//		MapManager.getInstance().setScanMap();
+//		for (Coordinate key : MapManager.getInstance().getrealMap().keySet()) {
+//			if(MapManager.getInstance().getrealMap().get(key) instanceof LavaTrap) {
+//				System.out.println("I found lava!!!!!!!!!!!!");
+//			}
+//		}
 		Set<Integer> keys = Simulation.getKeys();
 		Simulation.resetKeys();
 		 //System.out.print("Get Keys: ");
