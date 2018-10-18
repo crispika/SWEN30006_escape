@@ -33,7 +33,7 @@ public class MyAIController extends CarController{
 	private Coordinate futureGoal; // when stopped to get health, saved the future goal to move;
 	
 	private ArrayList<Coordinate> allunExplore = new ArrayList<>();// maybe for use of collect all unExplore points
-	//private static boolean carForward = true;
+	private static boolean carForward = true;
 	
 	public MyAIController(Car car) {
 		super(car);
@@ -188,7 +188,14 @@ public class MyAIController extends CarController{
 //						currGoal = backToSafePoint(getOrientation(), currPos);
 //					}
 					System.out.println("escaping to: " + lavaDealer.getescapePoint());
+
+					//ArrayList canExplore = lavaDealer.getCanExplore();
 					currGoal = lavaDealer.getescapePoint();
+
+
+
+
+
 					
 					HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
 					//System.out.println("originTemp: " + temp);
@@ -296,9 +303,14 @@ public class MyAIController extends CarController{
 	}
 	
 	
-//	public static void setCarFoward(boolean carOrien) {
-//		carForward = carOrien; 
-//	}
+	public static void setCarFoward(boolean carOrien) {
+		carForward = carOrien;
+	}
+
+	public static boolean getCarForward(){
+		return carForward;
+	}
+
 	public void combineCanExplore(ArrayList<Coordinate> canExplore) {
 		Iterator<Coordinate> iterator = allunExplore.iterator();
 		while(iterator.hasNext()) {
