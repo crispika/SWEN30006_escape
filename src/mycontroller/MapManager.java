@@ -2,12 +2,8 @@ package mycontroller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.PrimitiveIterator.OfDouble;
+import java.util.Iterator;
 
-
-import java.util.Stack;
-import java.util.Queue;
 import controller.CarController;
 import tiles.HealthTrap;
 import tiles.LavaTrap;
@@ -24,7 +20,8 @@ public class MapManager {
 	private HashMap<Coordinate, Boolean> scanMap = new HashMap<Coordinate,Boolean>();
 	private HashMap<Coordinate, MapTile> originMap = new HashMap<Coordinate, MapTile>();
 	private HashMap<Coordinate, MapTile> realMap = new HashMap<Coordinate, MapTile>();
-	//private HashMap<Coordinate, MapTile>  currentView;
+	private HashMap<Coordinate, MapTile> tempMap; // get all reachable points of traps scranned by every safeExplore;
+	
 	
 	private String START;
 	private Coordinate finish;
@@ -54,8 +51,11 @@ public class MapManager {
 		viewSquare = car.getViewSquare();
 		setScanMap();
 		reachable = Search.DFS(start);
+		//System.out.println(reachable);
+		//System.out.println("-----------------------------");
+		cleanReachable();
 		System.out.println(reachable);
-		System.out.println(start);
+		//System.out.println(start);
 	}
 	
 	
@@ -100,12 +100,24 @@ public class MapManager {
 				if (originMap.containsKey(furtherPos) && !scanMap.get(furtherPos)) {
 					scanMap.put(furtherPos, true);
 					realMap.put(furtherPos, currentView.get(furtherPos));
+					
+					if(currentView.get(furtherPos).isType(Type.TRAP)) {
+						
+						tempMap.put(furtherPos, currentView.get(furtherPos));
+						
+					}
 					setKeyInfo(furtherPos);
 					setSafePos(furtherPos);
 				}
 				if (originMap.containsKey(backPos) && !scanMap.get(backPos)) {
 					scanMap.put(backPos, true);
 					realMap.put(backPos, currentView.get(backPos));
+					
+					if(currentView.get(backPos).isType(Type.TRAP) && ! (currentView.get(backPos) instanceof MudTrap)) {
+						
+						tempMap.put(backPos, currentView.get(backPos));
+						
+					}
 					setKeyInfo(backPos);
 					setSafePos(backPos);
 				}
@@ -208,8 +220,29 @@ public class MapManager {
 	public HashMap<String, MapTile> getDirSuccessors(){
 		return dirSuccessors;
 	}
+	
+	public void cleanReachable() {	// remove point with 3 walls around which is "DeadEnd" 
+		Iterator<Coordinate> iterator = reachable.iterator();
+		while(iterator.hasNext()) {
+			Coordinate pos = iterator.next();
+			HashMap<Coordinate, MapTile> successors = getSuccessors(pos);
+			int count = 0;
+			for (Coordinate key: successors.keySet()) {
+				if (successors.get(key) == null) {
+					count+=1;
+				}
+			}
+			if (count >= 3) {
+				iterator.remove();
+			}
+		}
+	}
 
-
+	public void resetReachable() {
+		reachable = Search.DFS(start);
+		cleanReachable();
+	}
+	
 	public boolean isReachable(Coordinate pos) {
 		if (reachable.contains(pos)) {
 			return true;
@@ -218,20 +251,13 @@ public class MapManager {
 			return false;
 		}
 	}
-
-	public void bfs(Coordinate startpos, Coordinate goalpos) {
-		Queue<Coordinate> bfsQueue = new LinkedList<Coordinate>();
-
-		bfsQueue.offer(startpos);
-
-		while (!bfsQueue.isEmpty()) {
-			Coordinate pos = bfsQueue.poll();
-			for (Coordinate key: getSuccessors(pos).keySet()) {
-				if (getSuccessors(pos).get(key) != null && !reachable.contains(key)) {
-					bfsQueue.offer(key);
-				}
-			}
-		}
-
+	
+	public void clearTempMap() {
+		tempMap = new HashMap<>();
 	}
+	
+	public HashMap<Coordinate, MapTile> getTempMap(){
+		return tempMap;
+	}
+
 }
