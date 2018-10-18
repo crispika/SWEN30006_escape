@@ -8,13 +8,13 @@ import utilities.Coordinate;
 
 public class GrassStrategy extends TrapStrategy{
 	
-	private ArrayList<Coordinate> localAllunExplore = new ArrayList<>();
 	
 	
 	@Override
-	public Coordinate chooseGoal(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted) {
+	public Coordinate chooseGoal(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted,float health) {
 		// TODO Auto-generated method stub
-		ArrayList<Coordinate> canExplore = canExplore(temp,visted);
+		canExplore = new ArrayList<>();
+		canExplore.addAll(canExplore(temp,visted));
 		
 		
 		if(canExplore.size()>0) {
@@ -23,5 +23,7 @@ public class GrassStrategy extends TrapStrategy{
 		}
 		return null;
 	}
+	
+	
 
 }

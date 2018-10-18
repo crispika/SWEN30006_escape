@@ -13,18 +13,16 @@ public class LavaStrategy extends TrapStrategy{
 	private Coordinate escapePoint;
 	private LinkedList<Coordinate> keyPos = new LinkedList<>();
 	private boolean inFire = false;
-	private ArrayList<Coordinate> localAllunExplore = new ArrayList<>();
 	
 	@Override
-	public Coordinate chooseGoal(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted) {
+	public Coordinate chooseGoal(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted,float health) {
 		// TODO Auto-generated method stub
 		inFire = false;
 		keyPos.clear();
 		keyPos.addAll(lavaKey(temp,visted));
 		
-		System.out.println("KeyPos After: " + keyPos);
-		
-		ArrayList<Coordinate> canExplore = canExplore(temp,visted);
+		canExplore = new ArrayList<>();
+		canExplore.addAll(canExplore(temp,visted));
 		
 		if(keyPos.size() == 0) {
 			Coordinate currGoal = randomPick(canExplore);
@@ -54,6 +52,7 @@ public class LavaStrategy extends TrapStrategy{
 			}
 		}
 		ArrayList<Coordinate> canExplore = canExplore(temp, visted);
+		System.out.println("canExplore - all escapePoint: " + canExplore);
 		Coordinate outsidePos = randomPick(canExplore);
 		System.err.println("----------------escapePoint setted to-----------");
 		escapePoint = outsidePos;
@@ -70,6 +69,9 @@ public class LavaStrategy extends TrapStrategy{
 		}
 		keyPos.remove(outKey);
 		keyPos.addLast(outKey);
+		if (keyPos.size() == 1 && keyPos.contains(new Coordinate(-9999,-9999))) {
+			keyPos.clear();
+		}
 		System.err.println("key array: "+ keyPos);
 		return keyPos;
 		
@@ -78,6 +80,7 @@ public class LavaStrategy extends TrapStrategy{
 	public Coordinate getescapePoint() {
 		return escapePoint;
 	}
+	
 	
 	public Coordinate nearestSafePoint(ArrayList<Coordinate> canExplore, Coordinate currPos) {
 		int nearest = 99999;

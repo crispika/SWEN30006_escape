@@ -1,11 +1,13 @@
 package mycontroller;
 
+import java.awt.RenderingHints.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Random;
+import java.util.concurrent.Future;
 
 import com.badlogic.gdx.Input.Orientation;
 
@@ -23,6 +25,7 @@ public class MyAIController extends CarController{
 	
 	private GrassStrategy grassDealer = new GrassStrategy();
 	private LavaStrategy lavaDealer = new LavaStrategy();
+	private HealthStrategy healthDealer = new HealthStrategy();
 
 	private final int CAR_MAX_SPEED = 1;
 	private int view;
@@ -33,12 +36,13 @@ public class MyAIController extends CarController{
 	private int safeCounter = 0;
 	private boolean inFire = false;
 	private int stepCounter = 0;
-	//private static boolean carForward = true;
-	//private Coordinate escapePoint;
-	private Coordinate possibleGoal; // when catching the key, if the calculated escapePoint is a undetected lava, use this goal to escape to the safepoint
+	
+	private boolean inHealth = false;
+	private Coordinate possibleGoal; // when catching the key, if the calculated escapePoint is a undetected lava, use this goal to escape to the unexplored safepoint;
+	private Coordinate futureGoal; // when stopped to get health, saved the future goal to move;
 	
 	private ArrayList<Coordinate> allunExplore = new ArrayList<>();// maybe for use of collect all unExplore points
-	
+	//private static boolean carForward = true;
 	
 	public MyAIController(Car car) {
 		super(car);
@@ -63,61 +67,74 @@ public class MyAIController extends CarController{
 		
 	
 		if(currPos.equals(SafeExplore.getInstance().getHitWallPoint()) && safeCounter > 1 || stepCounter > 500){
-			System.out.println("-------------1--------------");
+			System.out.println("-------------End of the safeExplore--------------");
 			System.err.println("StepCounter: " + stepCounter);
 			
 			inSafeExplore = false;
 			safeCounter = 0;
 			stepCounter = 0;
-			
-			
+			//get newly collected trap info by safeExplore
 			HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getTempMap();
+			//remove unreachable points in the Hashmap to make sure all traps detected can be reached/not surrounded by wall\MudTrap etc.
 			cleanTemp(temp);
-			//System.err.println("Safetemp: " + temp);
-		
 			
-			Boolean onlyHealth = true;
+			//Analysis situation and find suitable strategy
+			ArrayList<String> trapCount = new ArrayList<>();
 			for (Coordinate pos: temp.keySet()) {
-				if (!(temp.get(pos) instanceof HealthTrap)) {
-					onlyHealth = false;
+				if (temp.get(pos) instanceof HealthTrap && !trapCount.contains("Health")) {
+					trapCount.add("Health");
+				}
+				if (temp.get(pos) instanceof LavaTrap && !trapCount.contains("Lava")) {
+					trapCount.add("Lava");
+				}
+				if (temp.get(pos) instanceof GrassTrap && !trapCount.contains("Grass")) {
+					trapCount.add("Grass");
 				}
 			}
-			if (temp.size() == 0 || onlyHealth) {
-				//TODO randomly choose a direction to safeExplore
+			//only lava case	
+			if (trapCount.size() == 1 && trapCount.contains("Lava")) {
+				currGoal = lavaDealer.chooseGoal(temp, visted,getHealth());
+				combineCanExplore(lavaDealer.getCanExplore());
+				inFire = lavaDealer.getInfire();
+				GoalExplore.getInstance().initGoalExplore();
+				GoalExplore.getInstance().moveToPos(currGoal);
+					
+			}
+			//only grass case
+			else if(trapCount.size() == 1 && trapCount.contains("Grass")) {		
+				currGoal = grassDealer.chooseGoal(temp, visted,getHealth());
+				combineCanExplore(grassDealer.getCanExplore());
+				GoalExplore.getInstance().initGoalExplore();
+				GoalExplore.getInstance().moveToPos(currGoal);
+			}
+			
+			else if(trapCount.size() == 1 && trapCount.contains("Health")){
+				currGoal = healthDealer.chooseGoal(temp, visted, getHealth());
+				combineCanExplore(healthDealer.getCanExplore());
+				inHealth = healthDealer.getInHealth();
+				futureGoal = healthDealer.getFutureGoal();
+				System.err.println("-----getFutureGoal: " + futureGoal);
+				
+				GoalExplore.getInstance().initGoalExplore();
+				GoalExplore.getInstance().moveToPos(currGoal);
+				
+			}
+			//Strategy combine Lava and Grass 
+			else if(trapCount.size() == 2 && trapCount.contains("Grass") && trapCount.contains("Lava")) {
+				//Use grass case to solve, don't achieve for the key on the way;
+				currGoal = grassDealer.chooseGoal(temp, visted,getHealth());
+				combineCanExplore(grassDealer.getCanExplore());
+				GoalExplore.getInstance().initGoalExplore();
+				GoalExplore.getInstance().moveToPos(currGoal);
 			}
 			else {
-				ArrayList<String> trapCount = new ArrayList<>();
-				for (Coordinate pos: temp.keySet()) {
-//					if (temp.get(pos) instanceof HealthTrap && !trapCount.contains("Health")) {
-//						trapCount.add("Health");
-//					}
-					if(temp.get(pos) instanceof LavaTrap && !trapCount.contains("Lava")) {
-						trapCount.add("Lava");
-					}
-					if(temp.get(pos) instanceof GrassTrap && !trapCount.contains("Grass")) {
-						trapCount.add("Grass");
-					}
-				}
-				
-				if (trapCount.size() == 1 && trapCount.contains("Lava")) {
-					
-					currGoal = lavaDealer.chooseGoal(temp, visted);
-					inFire = lavaDealer.getInfire();
-					GoalExplore.getInstance().initGoalExplore();
-					GoalExplore.getInstance().moveToPos(currGoal);
-					
-				}
-				else if(trapCount.size() == 1 && trapCount.contains("Grass")) {
-					
-					currGoal = grassDealer.chooseGoal(temp, visted);
-					GoalExplore.getInstance().initGoalExplore();
-					GoalExplore.getInstance().moveToPos(currGoal);
-					
-				}
-				//Strategy combine Lava and Grass
-				else {
-					
-				}
+				//other case same as pure health case
+				currGoal = healthDealer.chooseGoal(temp, visted, getHealth());
+				combineCanExplore(healthDealer.getCanExplore());
+				inHealth = healthDealer.getInHealth();
+				futureGoal = healthDealer.getFutureGoal();
+				GoalExplore.getInstance().initGoalExplore();
+				GoalExplore.getInstance().moveToPos(currGoal);
 			}
 		}
 		
@@ -153,7 +170,8 @@ public class MyAIController extends CarController{
 //					inFire = false;
 //				}
 				if(inFire) {
-					//TODO Escape
+					System.out.println("-------------------infire---------------------");
+					//TODO Escape after get key:
 //					System.out.println("speed: "+ getSpeed());
 //					System.out.println(getOrientation());
 //					System.out.println("currPos: " + currPos);
@@ -163,29 +181,29 @@ public class MyAIController extends CarController{
 //					else {
 //						currGoal = backToSafePoint(getOrientation(), currPos);
 //					}
-					System.out.println("escapePoint: " + lavaDealer.getescapePoint());
+					System.out.println("escaping to: " + lavaDealer.getescapePoint());
 					currGoal = lavaDealer.getescapePoint();
 					
 					HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
 					//System.out.println("originTemp: " + temp);
 					cleanTemp(temp);
 					//System.out.println("cleanedTemp: " + temp);
-					ArrayList<Coordinate> canExplore = lavaDealer.canExplore(temp,visted);
-					System.err.println("Canexplore: " + canExplore);
-					possibleGoal = lavaDealer.nearestSafePoint(canExplore, currPos);
+					ArrayList<Coordinate> localcanExplore = lavaDealer.canExplore(temp,visted);
+					System.err.println("Canexplore: " + localcanExplore);
+					possibleGoal = lavaDealer.nearestSafePoint(localcanExplore, currPos);
 					System.err.println("posiblegoal: "+possibleGoal);
 					
 					
 					GoalExplore.getInstance().initGoalExplore();
 					GoalExplore.getInstance().moveToPos(currGoal);
 					inFire = false;
-					System.out.println("-------------infire set to false---------------");
+					System.err.println("-------------infire set to false---------------");
 					System.out.println("-----------get the key-----------");
 					
 				}
 				else if( MapManager.getInstance().getrealMap().get(currPos) instanceof LavaTrap) {
 					System.out.println("---------------escaping by explore-----------------");
-					//TODO Escape
+					//TODO Escape from undetected lavaTrap:
 //					System.out.println("speed: "+ getSpeed());
 //					if(carForward) {
 //						currGoal = escapetoOutPoint(getOrientation(), currPos);
@@ -195,14 +213,41 @@ public class MyAIController extends CarController{
 //					}
 					
 					currGoal = possibleGoal;
-					
 					GoalExplore.getInstance().initGoalExplore();
 					GoalExplore.getInstance().moveToPos(currGoal);
 					
 					
 				}
+				else if(inHealth) {
+					if (getHealth()<100) {
+						applyBrake();
+						System.out.println("---------------stop for getting health---------------");
+					}
+					else {
+						if(MapManager.getInstance().getrealMap().get(futureGoal).isType(Type.ROAD)) {
+							currGoal = futureGoal;
+						}
+						else {
+							HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
+							//System.out.println("originTemp: " + temp);
+							cleanTemp(temp);
+							//System.out.println("cleanedTemp: " + temp);
+							ArrayList<Coordinate> canExplore = lavaDealer.canExplore(temp,visted);
+							System.err.println("Canexplore: " + canExplore);
+							combineCanExplore(canExplore);
+							currGoal = healthDealer.randomPick(canExplore);
+						}
+						
+						System.out.println("health 100, move to futureGoal: " + futureGoal);
+						inHealth = false;
+						System.out.println("-------------inhealth setted to false-----------------");
+						GoalExplore.getInstance().initGoalExplore();
+						GoalExplore.getInstance().moveToPos(currGoal);
+					}
+					
+				}
 				else {
-					System.out.println("---------------safe--------------");
+					System.out.println("---------------start next round of safeExplore--------------");
 					inSafeExplore = true;
 					SafeExplore.getInstance().initSafeExplore();
 					SafeExplore.getInstance().safeExplore();
@@ -210,7 +255,7 @@ public class MyAIController extends CarController{
 			}
 			else {
 				System.err.println(currGoal);
-				System.out.println("---------------toGoal--------------");
+				System.out.println("---------------Moving to Goal--------------");
 				GoalExplore.getInstance().moveToPos(currGoal);
 				
 			}
@@ -225,6 +270,8 @@ public class MyAIController extends CarController{
 		}
 	}
 	
+
+	
 	//remove unreachable points from newly detected tempHashmap 
 	public void cleanTemp(HashMap<Coordinate, MapTile> temp) {
 		MapManager.getInstance().resetReachable();
@@ -237,26 +284,25 @@ public class MyAIController extends CarController{
 		}
 	}
 	
-
-	
-	//For test
-	//@Override
-	public void update2() {
-		// TODO Auto-generated method stub
-		// save all viewed map to the real map
-		MapManager.getInstance().setScanMap();
-		// save the visted position;
-		Coordinate currPos = new Coordinate(getPosition());
-		addVisted(currPos);
-		Coordinate goal = new Coordinate(35,0);
-	    GoalExplore.getInstance().moveToPos(goal);
-		
-	}
-	
 	
 //	public static void setCarFoward(boolean carOrien) {
 //		carForward = carOrien; 
 //	}
-	
-
+	public void combineCanExplore(ArrayList<Coordinate> canExplore) {
+		Iterator<Coordinate> iterator = allunExplore.iterator();
+		while(iterator.hasNext()) {
+			Coordinate pos =iterator.next();
+			if (visted.contains(pos)) {
+				iterator.remove();
+			}
+			if(!MapManager.getInstance().getrealMap().get(pos).isType(Type.ROAD)) {
+				iterator.remove();
+			}
+		}
+		for (Coordinate newPos: canExplore) {
+			if (!allunExplore.contains(newPos)) {
+				allunExplore.add(newPos);
+			}
+		}
+	}
 }
