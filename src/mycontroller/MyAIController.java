@@ -66,7 +66,7 @@ public class MyAIController extends CarController{
 		
 		
 	
-		if(currPos.equals(SafeExplore.getInstance().getHitWallPoint()) && safeCounter > 1 || stepCounter > 500){
+		if(currPos.equals(SafeExplore.getInstance().getHitWallPoint()) && safeCounter > 0 || stepCounter > 500){
 			System.out.println("-------------End of the safeExplore--------------");
 			System.err.println("StepCounter: " + stepCounter);
 			
