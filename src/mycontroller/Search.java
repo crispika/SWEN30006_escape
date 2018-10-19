@@ -1,6 +1,7 @@
 package mycontroller;
 
 import controller.CarController;
+import tiles.HealthTrap;
 import tiles.MapTile;
 import utilities.Coordinate;
 
@@ -63,6 +64,43 @@ public class Search {
     }
 
 
+    public static ArrayList BFS_findPathToCloestH(Coordinate startPos) {
+        ArrayList<Coordinate> visited = new ArrayList<Coordinate>();
+        HashMap<Coordinate, ArrayList> allPath = new HashMap<Coordinate, ArrayList>();
+
+
+        Queue<Coordinate> bfsQueue = new LinkedList<Coordinate>();
+        MapManager map = MapManager.getInstance();
+
+        bfsQueue.offer(startPos);
+        visited.add(startPos);
+
+        ArrayList<Coordinate> path = new ArrayList<Coordinate>();
+        path.add(startPos);
+        allPath.put(startPos,path);
+
+        while (!bfsQueue.isEmpty()) {
+            Coordinate pos = bfsQueue.poll();
+            for (Coordinate key: map.getSuccessors(pos).keySet()) {
+                path = new ArrayList<Coordinate>(allPath.get(pos));
+
+                if (map.getSuccessors(pos).get(key) != null && !visited.contains(key)) {
+                    bfsQueue.offer(key);
+                    visited.add(key);
+                    path.add(key);
+                    allPath.put(key,path);
+
+
+                    HashMap<Coordinate,MapTile> realMap = map.getrealMap();
+                    MapTile tile = realMap.get(key);
+                    if (tile instanceof HealthTrap){
+                        return allPath.get(key);
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
 
 
