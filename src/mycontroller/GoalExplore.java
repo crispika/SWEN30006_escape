@@ -74,9 +74,12 @@ public class GoalExplore {
         if(car.getSpeed() == 0){
 
             Coordinate ahead = SafeExplore.getInstance().findNextCoordinate(car.getOrientation(),currentPos);
+            Coordinate back = SafeExplore.getInstance().findBehindCoordinate(car.getOrientation(),currentPos);
             HashMap<Coordinate,MapTile> successors = MapManager.getInstance().getSuccessors(currentPos);
             MapTile mapTile_a = successors.get(ahead);
-        	if(mapTile_a == null || mapTile_a instanceof MudTrap || !MyAIController.getCarForward()) {
+            MapTile mapTile_b = successors.get(back);
+        	if(mapTile_a == null || mapTile_a instanceof MudTrap
+                    || (!MyAIController.getCarForward() && mapTile_b != null && !(mapTile_b instanceof MudTrap))) {
         		action = "back";
         	}
         	else {
