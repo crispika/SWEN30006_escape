@@ -104,8 +104,9 @@ public class MyAIController extends CarController{
 					}
 				}
 				else {
-					System.out.println("---------------to Goal-----------------");
-					System.err.println(catchKeyGoal);
+					System.out.println("---------------to Key-----------------");
+					System.out.println("current pos: "+currPos);
+					System.out.println("next key： "+catchKeyGoal);
 					GoalExplore.getInstance().moveToPos(catchKeyGoal);
 				}
 			}
@@ -330,6 +331,7 @@ public class MyAIController extends CarController{
 	public static boolean getCarForward(){
 		return carForward;
 	}
+
 
 	public void combineCanExplore(ArrayList<Coordinate> canExplore) {
 		Iterator<Coordinate> iterator = allunExplore.iterator();

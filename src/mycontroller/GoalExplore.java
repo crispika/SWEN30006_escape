@@ -1,8 +1,11 @@
 package mycontroller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import controller.CarController;
+import tiles.MapTile;
+import tiles.MudTrap;
 import utilities.Coordinate;
 import world.WorldSpatial;
 
@@ -68,14 +71,20 @@ public class GoalExplore {
         ArrayList<Coordinate> path = new ArrayList<Coordinate>();
 
         if(car.getSpeed() == 0){
-        	if(SafeExplore.getInstance().canSafeAhead(car.getOrientation(), currentPos)) {
-        		action = "forward";
-        	}
-        	else {
+
+            Coordinate ahead = SafeExplore.getInstance().findNextCoordinate(car.getOrientation(),currentPos);
+            HashMap<Coordinate,MapTile> successors = MapManager.getInstance().getSuccessors(currentPos);
+            MapTile mapTile_a = successors.get(ahead);
+        	if(mapTile_a == null || mapTile_a instanceof MudTrap) {
         		action = "back";
         	}
-            
+        	else {
+        		action = "forward";
+        	}
         }
+
+
+
         else if(currentPos.equals(goal)){
             action = "stop";
         }
@@ -84,8 +93,8 @@ public class GoalExplore {
             Coordinate nextPos = path.get(1);
             action = action(currentPos, nextPos);
         }
-        System.out.println(path);
-        System.out.println(action);
+        System.out.println("path: "+path);
+        System.out.println("action: "+action);
         switch (action) {
             case "forward":
             	//MyAIController.setCarFoward(true);
