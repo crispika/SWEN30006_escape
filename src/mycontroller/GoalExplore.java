@@ -114,7 +114,7 @@ public class GoalExplore {
         }
     }
 
-    public void moveToCloestHealth(){
+    public int moveToCloestHealth(){
         String action;
         Coordinate currentPos = new Coordinate(car.getPosition());
         ArrayList<Coordinate> path = new ArrayList<Coordinate>();
@@ -162,7 +162,8 @@ public class GoalExplore {
             default:
                 car.applyBrake(); break;
         }
+        return path.size();
     }
-
+    
 
 }

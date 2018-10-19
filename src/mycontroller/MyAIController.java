@@ -69,7 +69,8 @@ public class MyAIController extends CarController{
 			if(!hasGoaltoCatchKey) {
 				//TODO find nearest health point
 				MapManager.getInstance().cleanHealthPos();
-				catchKeyGoal = MapManager.getInstance().findNearestHealth(currPos);
+				ArrayList<Coordinate> path = Search.BFS_findPathToCloestH(currPos);
+				catchKeyGoal = path.get(path.size() -1);
 				GoalExplore.getInstance().moveToPos(catchKeyGoal);
 				hasGoaltoCatchKey = true;
 				inHealth = true;
@@ -227,7 +228,7 @@ public class MyAIController extends CarController{
 					int toNearestHeathPos = 9999;
 					Coordinate nearHealth = MapManager.getInstance().findNearestHealth(currPos);
 					if( !(nearHealth == null) ) {
-						toNearestHeathPos = Search.manhatonDistance(currPos, nearHealth);
+						toNearestHeathPos = Search.BFS_findPathToCloestH(currPos).size();
 					}
 					
 					if(inFire) {
@@ -295,8 +296,9 @@ public class MyAIController extends CarController{
 						}
 						
 					}
-					else if (getHealth() < 60 && toNearestHeathPos < 15) {
-						currGoal = nearHealth;
+					else if (getHealth() < 70 && toNearestHeathPos < 40) {
+						ArrayList<Coordinate> path = Search.BFS_findPathToCloestH(currPos);
+						currGoal = path.get(path.size() -1);
 //						MapTile mapTile = MapManager.getInstance().getrealMap().get(currPos);
 //						if( ! (mapTile instanceof LavaTrap ) && ! (mapTile instanceof GrassTrap)) {
 //						}
