@@ -173,7 +173,7 @@ public class MapManager {
 		resetReachable();
 		ArrayList<Coordinate> unScannedPoint = new ArrayList<>();
 		for (Coordinate key: scanMap.keySet()) {
-			if(scanMap.get(key) == false || isReachable(key)) {
+			if(scanMap.get(key) == false && isReachable(key)) {
 				unScannedPoint.add(key);
 			}
 		}

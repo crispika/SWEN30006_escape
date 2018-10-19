@@ -40,6 +40,9 @@ public class MyAIController extends CarController{
 	private boolean hasGoaltoCatchKey;
 	private Coordinate catchKeyGoal;
 	
+	private boolean inCatchKey;
+	private Coordinate furtherKey;
+	
 	public MyAIController(Car car) {
 		super(car);
 		//MapManager.getInstance().initialize(getMap(),getPosition(),getViewSquare(),getView());
@@ -87,7 +90,7 @@ public class MyAIController extends CarController{
 							inHealth = false;
 						}
 					}
-					else if(getHealth() < 80) {
+					else if(getHealth() < 70) {
 						System.out.println("-------------------to nearest health point ---------------");
 						catchKeyGoal = MapManager.getInstance().findNearestHealth(currPos);
 						System.err.println();
@@ -161,17 +164,39 @@ public class MyAIController extends CarController{
 				//only lava case or "lava and grass" case, use lavadealer to solve
 				else if (trapCount.size() == 1 && trapCount.contains("Lava")
 						|| (trapCount.size() == 2 && trapCount.contains("Grass") && trapCount.contains("Lava"))) {
-					currGoal = lavaDealer.chooseGoal(temp, visted,getHealth());
-					if(currGoal == null) {
-						currGoal = lavaDealer.randomPick(allunExplore);
+					
+					if(getHealth() < 70) { //catch one key and escape
+						currGoal = lavaDealer.chooseGoal(temp, visted,getHealth());
+						if(currGoal == null) {
+							currGoal = lavaDealer.randomPick(allunExplore);
+						}
+						combineCanExplore(lavaDealer.getCanExplore());
+						inFire = lavaDealer.getInfire();
+						System.err.println("----------inFire is: " + inFire);
+						escapeGoal = lavaDealer.getescapePoint();
+						System.err.println("--------received escape point: "+ escapeGoal);
+						//GoalExplore.getInstance().initGoalExplore();
+						GoalExplore.getInstance().moveToPos(currGoal);
 					}
-					combineCanExplore(lavaDealer.getCanExplore());
-					inFire = lavaDealer.getInfire();
-					System.err.println("----------inFire is: " + inFire);
-					escapeGoal = lavaDealer.getescapePoint();
-					System.err.println("--------received escape point: "+ escapeGoal);
-					//GoalExplore.getInstance().initGoalExplore();
-					GoalExplore.getInstance().moveToPos(currGoal);
+					else { // catch 2 key and escape
+						currGoal = lavaDealer.catch2Keys(temp, visted);
+						if(currGoal == null) {
+							currGoal = lavaDealer.randomPick(allunExplore);
+						}
+						combineCanExplore(lavaDealer.getCanExplore());
+						
+						inCatchKey =lavaDealer.getInCatchKey();
+						System.err.println("----------inCatchKey is: " + inCatchKey);
+						furtherKey = lavaDealer.getFurtherKey();
+						System.err.println("---------furtherkeyPos is "+ furtherKey);
+						inFire = lavaDealer.getInfire();
+						System.err.println("----------inFire is: " + inFire);
+						escapeGoal = lavaDealer.getescapePoint();
+						System.err.println("--------received escape point: "+ escapeGoal);
+						//GoalExplore.getInstance().initGoalExplore();
+						GoalExplore.getInstance().moveToPos(currGoal);
+					}
+					
 						
 				}
 				//only grass case
@@ -223,13 +248,18 @@ public class MyAIController extends CarController{
 			else {
 				if(currPos.equals(currGoal)) {
 					System.err.println(currGoal);
-					MapManager.getInstance().cleanHealthPos();
+//					MapManager.getInstance().cleanHealthPos();
 					
+//					Coordinate nearHealth = MapManager.getInstance().findNearestHealth(currPos);
 					int toNearestHeathPos = 9999;
-					Coordinate nearHealth = MapManager.getInstance().findNearestHealth(currPos);
-					if( !(nearHealth == null) ) {
-						toNearestHeathPos = Search.BFS_findPathToCloestH(currPos).size();
+//					if( !(nearHealth == null) ) {
+//						toNearestHeathPos = Search.BFS_findPathToCloestH(currPos).size();
+//					}
+					ArrayList<Coordinate> path = Search.BFS_findPathToCloestH(currPos);
+					if(path != null) {
+						toNearestHeathPos = path.size();
 					}
+					
 					
 					if(inFire) {
 						System.out.println("-------------------infire---------------------");
@@ -258,7 +288,7 @@ public class MyAIController extends CarController{
 						System.out.println("-----------get the key-----------");
 						
 					}
-					else if(MapManager.getInstance().getrealMap().get(currPos) instanceof LavaTrap) {
+					else if(!inCatchKey && MapManager.getInstance().getrealMap().get(currPos) instanceof LavaTrap) {
 						System.out.println("---------------escaping by explore-----------------");
 						//TODO Escape from undetected lavaTrap:
 						currGoal = possibleGoal;
@@ -296,8 +326,16 @@ public class MyAIController extends CarController{
 						}
 						
 					}
-					else if (getHealth() < 70 && toNearestHeathPos < 40) {
-						ArrayList<Coordinate> path = Search.BFS_findPathToCloestH(currPos);
+					else if(inCatchKey) {
+						currGoal = furtherKey;
+						inCatchKey = false;
+						System.out.println("-------------inCatchKey setted to false-----------------");
+						inFire = true;
+					}
+					
+					else if (getHealth() < 65 && toNearestHeathPos <20) {
+						System.err.println("-----------------health<65, to catch health------------------------");
+						//ArrayList<Coordinate> path = Search.BFS_findPathToCloestH(currPos);
 						currGoal = path.get(path.size() -1);
 //						MapTile mapTile = MapManager.getInstance().getrealMap().get(currPos);
 //						if( ! (mapTile instanceof LavaTrap ) && ! (mapTile instanceof GrassTrap)) {

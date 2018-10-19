@@ -12,6 +12,8 @@ public class LavaStrategy extends TrapStrategy{
 	
 	
 	private LinkedList<Coordinate> keyPos = new LinkedList<>();
+	private Coordinate furtherKey;
+	private boolean inCatchKey;
 	
 	
 	@Override
@@ -41,7 +43,46 @@ public class LavaStrategy extends TrapStrategy{
 		}
 	}
 	
-
+	
+	public Coordinate catch2Keys(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted) {
+		inCatchKey = false;
+		keyPos.clear();
+		keyPos.addAll(lavaKey(temp,visted));
+		
+		canExplore = new ArrayList<>();
+		canExplore.addAll(canExplore(temp,visted));
+		
+		if(keyPos.size() == 0) {
+			if(canExplore.size() > 0) {
+				Coordinate currGoal = randomPick(canExplore);
+				System.err.println(currGoal);
+				System.out.println("canExplore: "+canExplore);
+				return currGoal;
+			}
+			return null;
+		}
+		else if(keyPos.size() == 1){
+			Coordinate currGoal = keyPos.pollLast();
+			inFire = true;
+			System.err.println("!!! infire has been setted");
+			return currGoal;
+		}
+		else {
+			Coordinate currGoal = keyPos.pollFirst();
+			furtherKey = keyPos.pollLast();
+			inCatchKey = true;
+			System.err.println("!!! inCatchkey has been setted");
+			return currGoal;
+		}
+	}
+	
+	public Coordinate getFurtherKey() {
+		return furtherKey;
+	}
+	
+	public boolean getInCatchKey() {
+		return inCatchKey;
+	}
 	
 	public LinkedList<Coordinate> lavaKey(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted){
 		
@@ -63,22 +104,29 @@ public class LavaStrategy extends TrapStrategy{
 		System.out.println(escapePoint);
 		System.out.println("-------------------");
 		Coordinate outKey = new Coordinate(-9999,-9999);
+		Coordinate insideNearestKey = outsidePos;
 		int nearest = 99999;
+		int farest = 0;
 		for (Coordinate keypos: keyPos) {
 			int mDistance = Math.abs(keypos.x - outsidePos.x) + Math.abs(keypos.y - outsidePos.y);
 			if(mDistance < nearest){
 				nearest = mDistance;
 				outKey = keypos;
 			}
+			if(mDistance > farest) {
+				insideNearestKey = keypos;
+				farest = mDistance;
+			}
 		}
 		keyPos.remove(outKey);
 		keyPos.addLast(outKey);
-		if (keyPos.size() == 1 && keyPos.contains(new Coordinate(-9999,-9999))) {
+		keyPos.remove(insideNearestKey);
+		keyPos.addFirst(insideNearestKey);
+		if (keyPos.size() == 1 && keyPos.contains(new Coordinate(-9999,-9999)) || keyPos.size() == 1 && keyPos.contains(outsidePos)) {
 			keyPos.clear();
 		}
 		System.err.println("-------------got key array: "+ keyPos);
 		return keyPos;
-		
 	}
 	
 
