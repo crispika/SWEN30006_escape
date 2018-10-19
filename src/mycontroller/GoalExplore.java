@@ -76,7 +76,7 @@ public class GoalExplore {
             Coordinate ahead = SafeExplore.getInstance().findNextCoordinate(car.getOrientation(),currentPos);
             HashMap<Coordinate,MapTile> successors = MapManager.getInstance().getSuccessors(currentPos);
             MapTile mapTile_a = successors.get(ahead);
-        	if(mapTile_a == null || mapTile_a instanceof MudTrap) {
+        	if(mapTile_a == null || mapTile_a instanceof MudTrap || !MyAIController.getCarForward()) {
         		action = "back";
         	}
         	else {
@@ -97,6 +97,7 @@ public class GoalExplore {
         System.out.println("------------GoalExplore------------");
         System.out.println("path: "+path);
         System.out.println("action: "+action);
+        System.out.println("currentPos: "+currentPos);
         System.out.println("------------------");
         switch (action) {
             case "forward":
