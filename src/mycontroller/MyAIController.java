@@ -37,6 +37,8 @@ public class MyAIController extends CarController{
 	private ArrayList<Coordinate> allunExplore = new ArrayList<>();// maybe for use of collect all unExplore points
 	private static boolean carForward = true;
 	private Coordinate escapeGoal;
+	private boolean hasGoaltoCatchKey;
+	private Coordinate catchKeyGoal;
 	
 	public MyAIController(Car car) {
 		super(car);
@@ -58,199 +60,246 @@ public class MyAIController extends CarController{
 		Coordinate currPos = new Coordinate(getPosition());
 		addVisted(currPos);
 		
+		//get the key and exit
 		if(MapManager.getInstance().foundAllkey()) {
-			System.exit(0);
-		}
-		
-	
-		if(currPos.equals(SafeExplore.getInstance().getHitWallPoint()) && safeCounter > 0 || stepCounter > 500){
-			System.out.println("-------------End of the safeExplore--------------");
-			System.err.println("StepCounter: " + stepCounter);
+			//System.exit(0);
+			ArrayList<Coordinate> unCatchedKey = MapManager.getInstance().unCatchedKey();
 			
-			inSafeExplore = false;
-			safeCounter = 0;
-			stepCounter = 0;
-			//get newly collected trap info by safeExplore
-			HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getTempMap();
-			//remove unreachable points in the Hashmap to make sure all traps detected can be reached/not surrounded by wall\MudTrap etc.
-			cleanTemp(temp);
-			
-			//Analysis situation and find suitable strategy
-			ArrayList<String> trapCount = new ArrayList<>();
-			for (Coordinate pos: temp.keySet()) {
-				if (temp.get(pos) instanceof HealthTrap && !trapCount.contains("Health")) {
-					trapCount.add("Health");
-				}
-				if (temp.get(pos) instanceof LavaTrap && !trapCount.contains("Lava")) {
-					trapCount.add("Lava");
-				}
-				if (temp.get(pos) instanceof GrassTrap && !trapCount.contains("Grass")) {
-					trapCount.add("Grass");
-				}
+			if(!hasGoaltoCatchKey) {
+				//TODO find nearest health point
+				MapManager.getInstance().cleanHealthPos();
+				catchKeyGoal = MapManager.getInstance().findNearestHealth(currPos);
+				GoalExplore.getInstance().moveToPos(catchKeyGoal);
+				hasGoaltoCatchKey = true;
+				inHealth = true;
+				System.out.println("--------------------hasGoalToCatchKey setted to true----------");
 			}
-			
-			//no newly MapTile found;	
-			if(trapCount.size() == 0) {
-				System.err.println("---------------no new this detected --------------");
-				combineCanExplore(new ArrayList<>());
-				if(allunExplore.size() > 0) {
-					currGoal = healthDealer.randomPick(allunExplore);
-				}
-				else {
-					currGoal = healthDealer.randomPick(MapManager.getInstance().unScannedPoint());
-				}
-				
-				System.err.println("------currGoal is setted to: " + currGoal);
-				//GoalExplore.getInstance().initGoalExplore();
-				GoalExplore.getInstance().moveToPos(currGoal);
-				
-			}
-			//only lava case or "lava and grass" case, use lavadealer to solve
-			else if (trapCount.size() == 1 && trapCount.contains("Lava")
-					|| (trapCount.size() == 2 && trapCount.contains("Grass") && trapCount.contains("Lava"))) {
-				currGoal = lavaDealer.chooseGoal(temp, visted,getHealth());
-				if(currGoal == null) {
-					currGoal = lavaDealer.randomPick(allunExplore);
-				}
-				combineCanExplore(lavaDealer.getCanExplore());
-				inFire = lavaDealer.getInfire();
-				System.err.println("----------inFire is: " + inFire);
-				escapeGoal = lavaDealer.getescapePoint();
-				System.err.println("--------received escape point: "+ escapeGoal);
-				//GoalExplore.getInstance().initGoalExplore();
-				GoalExplore.getInstance().moveToPos(currGoal);
-					
-			}
-			//only grass case
-			else if(trapCount.size() == 1 && trapCount.contains("Grass")) {		
-				currGoal = grassDealer.chooseGoal(temp, visted,getHealth());
-				if(currGoal == null) {
-					currGoal = grassDealer.randomPick(allunExplore);
-				}
-				combineCanExplore(grassDealer.getCanExplore());
-				//GoalExplore.getInstance().initGoalExplore();
-				GoalExplore.getInstance().moveToPos(currGoal);
-			}
-			
-			//when found health trap:
-			else{
-				currGoal = healthDealer.chooseGoal(temp, visted, getHealth());
-				if(currGoal == null) {
-					currGoal = healthDealer.randomPick(allunExplore);
-				}
-				
-				System.out.println("--------Health case: currGoal: " + currGoal);
-				combineCanExplore(healthDealer.getCanExplore());
-				inHealth = healthDealer.getInHealth();
-				inFire = healthDealer.getInfire();
-				System.err.println("----------inFire is: " + inFire);
-				escapeGoal = healthDealer.getescapePoint();
-				System.err.println("--------received escape point: "+ escapeGoal);
-				
-				futureGoal = healthDealer.getFutureGoal();
-				if (futureGoal.equals(new Coordinate(-1,-1))) {
-					futureGoal = healthDealer.randomPick(allunExplore);
-				}
-				System.err.println("-----getFutureGoal: " + futureGoal);
-				
-				//GoalExplore.getInstance().initGoalExplore();
-				GoalExplore.getInstance().moveToPos(currGoal);
-			}
-		}
-		
-		
-		if(inSafeExplore) {
-			SafeExplore.getInstance().safeExplore();
-			stepCounter +=1;
-			if (currPos.equals(SafeExplore.getInstance().getHitWallPoint())) {
-				safeCounter+=1;
-				System.out.println("safecounter: " +  safeCounter);
-			}
-		}
-		else {
-			if(currPos.equals(currGoal)) {
-				System.err.println(currGoal);
-				if(inFire) {
-					System.out.println("-------------------infire---------------------");
-					//TODO Escape after get key:
-					System.out.println("escaping to: " + lavaDealer.getescapePoint());
-
-					//ArrayList canExplore = lavaDealer.getCanExplore();
-					currGoal = escapeGoal;
-					
-					//for possible goal is escapePoint is not valid
-					HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
-					//System.out.println("originTemp: " + temp);
-					cleanTemp(temp);
-					//System.out.println("cleanedTemp: " + temp);
-					ArrayList<Coordinate> localcanExplore = lavaDealer.canExplore(temp,visted);
-					System.err.println("Canexplore: " + localcanExplore);
-					combineCanExplore(localcanExplore);
-					possibleGoal = lavaDealer.nearestSafePoint(localcanExplore, currPos);
-					System.err.println("posiblegoal: "+possibleGoal);
-					
-					
-					//GoalExplore.getInstance().initGoalExplore();
-					//GoalExplore.getInstance().moveToPos(currGoal);
-					inFire = false;
-					System.err.println("-------------infire set to false---------------");
-					System.out.println("-----------get the key-----------");
-					
-				}
-				else if(MapManager.getInstance().getrealMap().get(currPos) instanceof LavaTrap) {
-					System.out.println("---------------escaping by explore-----------------");
-					//TODO Escape from undetected lavaTrap:
-					currGoal = possibleGoal;
-					//GoalExplore.getInstance().initGoalExplore();
-					//GoalExplore.getInstance().moveToPos(currGoal);
-				}
-				else if(inHealth) {
-					if (getHealth()<100) {
-						applyBrake();
-						System.out.println("---------------stop for getting health---------------");
-					}
-					else {
-						MapTile futuregoal = MapManager.getInstance().getrealMap().get(futureGoal);
-						if( (futuregoal.isType(Type.ROAD) || futuregoal instanceof HealthTrap) && !MapManager.getInstance().isDeadRoad(futureGoal)) {
-							currGoal = futureGoal;
-							System.err.println("future goal can work : " + futureGoal);
+			else {
+				if(currPos.equals(catchKeyGoal)) {
+					if(inHealth) {
+						System.out.println("----------------------inHealth - catchKey---------------");
+						if(getHealth() < 100) {
+							applyBrake();
 						}
 						else {
-							HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
-							//System.out.println("originTemp: " + temp);
-							cleanTemp(temp);
-							//System.out.println("cleanedTemp: " + temp);
-							ArrayList<Coordinate> canExplore = lavaDealer.canExplore(temp,visted);
-							System.err.println("inHealth case, redetected Canexplore goal: " + canExplore);
-							combineCanExplore(canExplore);
-							currGoal = healthDealer.randomPick(canExplore);
-							System.err.println("future goal can't work, changed to goal: " + currGoal);
+							inHealth = false;
 						}
-						
-						System.out.println("health 100, move to futureGoal: " + futureGoal);
-						inHealth = false;
-						System.out.println("-------------inhealth setted to false-----------------");
-						//GoalExplore.getInstance().initGoalExplore();
-						//GoalExplore.getInstance().moveToPos(currGoal);
 					}
-					
+					else if(getHealth() < 80) {
+						System.out.println("-------------------to nearest health point ---------------");
+						catchKeyGoal = MapManager.getInstance().findNearestHealth(currPos);
+						System.err.println();
+						inHealth = true;
+					}
+					else {
+						if(unCatchedKey.size() == 0) {
+							System.out.println("-----------!!!nice!!!---to the exit!!!!!!!------------");
+							catchKeyGoal = MapManager.getInstance().getFinish();
+							
+						}
+						else {
+							catchKeyGoal = unCatchedKey.get(0);
+							System.err.println("--------to catch key: " + catchKeyGoal);
+						}
+					}
 				}
 				else {
-					System.out.println("---------------start next round of safeExplore--------------");
-					inSafeExplore = true;
-					SafeExplore.getInstance().initSafeExplore();
-					SafeExplore.getInstance().safeExplore();
+					System.out.println("---------------to Goal-----------------");
+					System.err.println(catchKeyGoal);
+					GoalExplore.getInstance().moveToPos(catchKeyGoal);
+				}
+			}
+		}
+		
+		// explore the map
+		else {
+			if(currPos.equals(SafeExplore.getInstance().getHitWallPoint()) && safeCounter > 0 || stepCounter > 500){
+				System.out.println("-------------End of the safeExplore--------------");
+				System.err.println("StepCounter: " + stepCounter);
+				
+				inSafeExplore = false;
+				safeCounter = 0;
+				stepCounter = 0;
+				//get newly collected trap info by safeExplore
+				HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getTempMap();
+				//remove unreachable points in the Hashmap to make sure all traps detected can be reached/not surrounded by wall\MudTrap etc.
+				cleanTemp(temp);
+				
+				//Analysis situation and find suitable strategy
+				ArrayList<String> trapCount = new ArrayList<>();
+				for (Coordinate pos: temp.keySet()) {
+					if (temp.get(pos) instanceof HealthTrap && !trapCount.contains("Health")) {
+						trapCount.add("Health");
+					}
+					if (temp.get(pos) instanceof LavaTrap && !trapCount.contains("Lava")) {
+						trapCount.add("Lava");
+					}
+					if (temp.get(pos) instanceof GrassTrap && !trapCount.contains("Grass")) {
+						trapCount.add("Grass");
+					}
+				}
+				
+				//no newly MapTile found;	
+				if(trapCount.size() == 0) {
+					System.err.println("---------------no new this detected --------------");
+					combineCanExplore(new ArrayList<>());
+					if(allunExplore.size() > 0) {
+						currGoal = healthDealer.randomPick(allunExplore);
+					}
+					else {
+						currGoal = healthDealer.randomPick(MapManager.getInstance().unScannedPoint());
+					}
+					
+					System.err.println("------currGoal is setted to: " + currGoal);
+					//GoalExplore.getInstance().initGoalExplore();
+					GoalExplore.getInstance().moveToPos(currGoal);
+					
+				}
+				//only lava case or "lava and grass" case, use lavadealer to solve
+				else if (trapCount.size() == 1 && trapCount.contains("Lava")
+						|| (trapCount.size() == 2 && trapCount.contains("Grass") && trapCount.contains("Lava"))) {
+					currGoal = lavaDealer.chooseGoal(temp, visted,getHealth());
+					if(currGoal == null) {
+						currGoal = lavaDealer.randomPick(allunExplore);
+					}
+					combineCanExplore(lavaDealer.getCanExplore());
+					inFire = lavaDealer.getInfire();
+					System.err.println("----------inFire is: " + inFire);
+					escapeGoal = lavaDealer.getescapePoint();
+					System.err.println("--------received escape point: "+ escapeGoal);
+					//GoalExplore.getInstance().initGoalExplore();
+					GoalExplore.getInstance().moveToPos(currGoal);
+						
+				}
+				//only grass case
+				else if(trapCount.size() == 1 && trapCount.contains("Grass")) {		
+					currGoal = grassDealer.chooseGoal(temp, visted,getHealth());
+					if(currGoal == null) {
+						currGoal = grassDealer.randomPick(allunExplore);
+					}
+					combineCanExplore(grassDealer.getCanExplore());
+					//GoalExplore.getInstance().initGoalExplore();
+					GoalExplore.getInstance().moveToPos(currGoal);
+				}
+				
+				//when found health trap:
+				else{
+					currGoal = healthDealer.chooseGoal(temp, visted, getHealth());
+					if(currGoal == null) {
+						currGoal = healthDealer.randomPick(allunExplore);
+					}
+					
+					System.out.println("--------Health case: currGoal: " + currGoal);
+					combineCanExplore(healthDealer.getCanExplore());
+					inHealth = healthDealer.getInHealth();
+					inFire = healthDealer.getInfire();
+					System.err.println("----------inFire is: " + inFire);
+					escapeGoal = healthDealer.getescapePoint();
+					System.err.println("--------received escape point: "+ escapeGoal);
+					
+					futureGoal = healthDealer.getFutureGoal();
+					if (futureGoal.equals(new Coordinate(-1,-1))) {
+						futureGoal = healthDealer.randomPick(allunExplore);
+					}
+					System.err.println("-----getFutureGoal: " + futureGoal);
+					
+					//GoalExplore.getInstance().initGoalExplore();
+					GoalExplore.getInstance().moveToPos(currGoal);
+				}
+			}
+			
+			
+			if(inSafeExplore) {
+				SafeExplore.getInstance().safeExplore();
+				stepCounter +=1;
+				if (currPos.equals(SafeExplore.getInstance().getHitWallPoint())) {
+					safeCounter+=1;
+					System.out.println("safecounter: " +  safeCounter);
 				}
 			}
 			else {
-				System.err.println(currGoal);
-				System.out.println("---------------Moving to Goal--------------");
-				GoalExplore.getInstance().moveToPos(currGoal);
-				
+				if(currPos.equals(currGoal)) {
+					System.err.println(currGoal);
+					if(inFire) {
+						System.out.println("-------------------infire---------------------");
+						//TODO Escape after get key:
+						System.out.println("escaping to: " + lavaDealer.getescapePoint());
+
+						//ArrayList canExplore = lavaDealer.getCanExplore();
+						currGoal = escapeGoal;
+						
+						//for possible goal is escapePoint is not valid
+						HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
+						//System.out.println("originTemp: " + temp);
+						cleanTemp(temp);
+						//System.out.println("cleanedTemp: " + temp);
+						ArrayList<Coordinate> localcanExplore = lavaDealer.canExplore(temp,visted);
+						System.err.println("Canexplore: " + localcanExplore);
+						combineCanExplore(localcanExplore);
+						possibleGoal = lavaDealer.nearestSafePoint(localcanExplore, currPos);
+						System.err.println("posiblegoal: "+possibleGoal);
+						
+						
+						//GoalExplore.getInstance().initGoalExplore();
+						//GoalExplore.getInstance().moveToPos(currGoal);
+						inFire = false;
+						System.err.println("-------------infire set to false---------------");
+						System.out.println("-----------get the key-----------");
+						
+					}
+					else if(MapManager.getInstance().getrealMap().get(currPos) instanceof LavaTrap) {
+						System.out.println("---------------escaping by explore-----------------");
+						//TODO Escape from undetected lavaTrap:
+						currGoal = possibleGoal;
+						//GoalExplore.getInstance().initGoalExplore();
+						//GoalExplore.getInstance().moveToPos(currGoal);
+					}
+					else if(inHealth) {
+						if (getHealth()<100) {
+							applyBrake();
+							System.out.println("---------------stop for getting health---------------");
+						}
+						else {
+							MapTile futuregoal = MapManager.getInstance().getrealMap().get(futureGoal);
+							if( (futuregoal.isType(Type.ROAD) || futuregoal instanceof HealthTrap) && !MapManager.getInstance().isDeadRoad(futureGoal)) {
+								currGoal = futureGoal;
+								System.err.println("future goal can work : " + futureGoal);
+							}
+							else {
+								HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
+								//System.out.println("originTemp: " + temp);
+								cleanTemp(temp);
+								//System.out.println("cleanedTemp: " + temp);
+								ArrayList<Coordinate> canExplore = lavaDealer.canExplore(temp,visted);
+								System.err.println("inHealth case, redetected Canexplore goal: " + canExplore);
+								combineCanExplore(canExplore);
+								currGoal = healthDealer.randomPick(canExplore);
+								System.err.println("future goal can't work, changed to goal: " + currGoal);
+							}
+							
+							System.out.println("health 100, move to futureGoal: " + futureGoal);
+							inHealth = false;
+							System.out.println("-------------inhealth setted to false-----------------");
+							//GoalExplore.getInstance().initGoalExplore();
+							//GoalExplore.getInstance().moveToPos(currGoal);
+						}
+						
+					}
+					else {
+						System.out.println("---------------start next round of safeExplore--------------");
+						inSafeExplore = true;
+						SafeExplore.getInstance().initSafeExplore();
+						SafeExplore.getInstance().safeExplore();
+					}
+				}
+				else {
+					System.err.println(currGoal);
+					System.out.println("---------------Moving to Goal--------------");
+					GoalExplore.getInstance().moveToPos(currGoal);
+					
+				}
 			}
 		}
-		
-		
 	}
 	
 	public void addVisted(Coordinate pos) {

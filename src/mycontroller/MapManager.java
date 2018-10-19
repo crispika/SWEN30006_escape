@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import controller.CarController;
+import javafx.geometry.Pos;
 import tiles.HealthTrap;
 import tiles.LavaTrap;
 import tiles.MapTile;
@@ -136,6 +137,34 @@ public class MapManager {
 			}
 		}
 	}
+	public Coordinate getFinish() {
+		return finish;
+	}
+	
+	public void cleanHealthPos() {
+		resetReachable();
+		Iterator<Coordinate> iterator = safePos.iterator();
+		while(iterator.hasNext()) {
+			Coordinate healthPos = iterator.next();
+			if(!isReachable(healthPos)) {
+				iterator.remove();
+			}
+		}
+	}
+	
+	public Coordinate findNearestHealth(Coordinate currPos) {
+		int Nearest = 9999;
+		Coordinate nearPos = new Coordinate(-9999,-9999);
+		for (Coordinate health: safePos) {
+			int mDistance = Math.abs(health.x - currPos.x) + Math.abs(health.y - currPos.y);
+			if(mDistance < Nearest) {
+				Nearest = mDistance;
+				nearPos = health;
+			}
+		}
+		System.err.println("-----nearest health point is: " + nearPos);
+		return nearPos;
+	}
 	
 	public ArrayList<Coordinate> unScannedPoint(){
 		resetReachable();
@@ -164,6 +193,17 @@ public class MapManager {
 			System.err.println("only found keys: " + keytype);
 			return false;
 		}
+	}
+	
+	public ArrayList<Coordinate> unCatchedKey(){
+		ArrayList<Coordinate> unCatchedKeys = new ArrayList<>();
+		for (Coordinate keyPos: keytype) {
+			if (!car.getKeys().contains(((LavaTrap)realMap.get(keyPos)).getKey())){
+				unCatchedKeys.add(keyPos);
+			}
+		}
+		System.err.println("-----still have uncatched keys...." + unCatchedKeys);
+		return unCatchedKeys;
 	}
 	
 	private void setKeyInfo(Coordinate pos) {
