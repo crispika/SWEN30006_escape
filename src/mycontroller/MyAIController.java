@@ -60,6 +60,7 @@ public class MyAIController extends CarController{
 		Coordinate currPos = new Coordinate(getPosition());
 		addVisted(currPos);
 		
+		
 		//get the key and exit
 		if(MapManager.getInstance().foundAllkey()) {
 			//System.exit(0);
@@ -221,6 +222,14 @@ public class MyAIController extends CarController{
 			else {
 				if(currPos.equals(currGoal)) {
 					System.err.println(currGoal);
+					MapManager.getInstance().cleanHealthPos();
+					
+					int toNearestHeathPos = 9999;
+					Coordinate nearHealth = MapManager.getInstance().findNearestHealth(currPos);
+					if( !(nearHealth == null) ) {
+						toNearestHeathPos = Search.manhatonDistance(currPos, nearHealth);
+					}
+					
 					if(inFire) {
 						System.out.println("-------------------infire---------------------");
 						//TODO Escape after get key:
@@ -285,6 +294,14 @@ public class MyAIController extends CarController{
 							//GoalExplore.getInstance().moveToPos(currGoal);
 						}
 						
+					}
+					else if (getHealth() < 60 && toNearestHeathPos < 15) {
+						currGoal = nearHealth;
+//						MapTile mapTile = MapManager.getInstance().getrealMap().get(currPos);
+//						if( ! (mapTile instanceof LavaTrap ) && ! (mapTile instanceof GrassTrap)) {
+//						}
+						futureGoal = currPos;
+						inHealth = true;
 					}
 					else {
 						System.out.println("---------------start next round of safeExplore--------------");

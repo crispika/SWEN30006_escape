@@ -162,6 +162,9 @@ public class MapManager {
 				nearPos = health;
 			}
 		}
+		if(nearPos.equals(new Coordinate(-9999,-9999))) {
+			nearPos = null;
+		}
 		System.err.println("-----nearest health point is: " + nearPos);
 		return nearPos;
 	}

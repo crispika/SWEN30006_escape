@@ -6,6 +6,8 @@ import utilities.Coordinate;
 
 import java.util.*;
 
+import com.badlogic.gdx.graphics.g3d.particles.ParticleSorter.Distance;
+
 public class Search {
 
     public static ArrayList DFS(Coordinate start) {
@@ -60,6 +62,11 @@ public class Search {
             }
         }
         return null;
+    }
+    
+    public static int manhatonDistance(Coordinate x, Coordinate y) {
+    	int mdistance = Math.abs(x.x - y.x) + Math.abs(x.y-y.y);
+    	return mdistance;
     }
 
 
