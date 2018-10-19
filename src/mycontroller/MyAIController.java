@@ -150,12 +150,13 @@ public class MyAIController extends CarController{
 					System.err.println("---------------no new this detected --------------");
 					combineCanExplore(new ArrayList<>());
 					if(allunExplore.size() > 0) {
+						//System.err.println("allunExplore: "+allunExplore);
 						currGoal = healthDealer.randomPick(allunExplore);
 					}
 					else {
 						currGoal = healthDealer.randomPick(MapManager.getInstance().unScannedPoint());
 					}
-					
+					//System.err.println(allunExplore);
 					System.err.println("------currGoal is setted to: " + currGoal);
 					//GoalExplore.getInstance().initGoalExplore();
 					GoalExplore.getInstance().moveToPos(currGoal);
@@ -401,9 +402,11 @@ public class MyAIController extends CarController{
 				iterator.remove();
 			}
 		}
+		System.out.println("set allunExplore: "+allunExplore);
 		for (Coordinate newPos: canExplore) {
 			if (!allunExplore.contains(newPos)) {
 				allunExplore.add(newPos);
+				//System.out.println("add explore: "+newPos);
 			}
 		}
 	}

@@ -193,7 +193,7 @@ public class MapManager {
 			return true;
 		}
 		else {
-			System.err.println("only found keys: " + keytype);
+			//System.err.println("only found keys: " + keytype);
 			return false;
 		}
 	}
@@ -205,7 +205,7 @@ public class MapManager {
 				unCatchedKeys.add(keyPos);
 			}
 		}
-		System.err.println("-----still have uncatched keys...." + unCatchedKeys);
+		//System.err.println("-----still have uncatched keys...." + unCatchedKeys);
 		return unCatchedKeys;
 	}
 	
