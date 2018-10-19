@@ -45,6 +45,7 @@ public class LavaStrategy extends TrapStrategy{
 	
 	
 	public Coordinate catch2Keys(HashMap<Coordinate, MapTile> temp, ArrayList<Coordinate> visted) {
+		inFire = false;
 		inCatchKey = false;
 		keyPos.clear();
 		keyPos.addAll(lavaKey(temp,visted));
@@ -68,6 +69,7 @@ public class LavaStrategy extends TrapStrategy{
 			return currGoal;
 		}
 		else {
+			System.err.println("ALL KEY pos are: " + keyPos);
 			Coordinate currGoal = keyPos.pollFirst();
 			furtherKey = keyPos.pollLast();
 			inCatchKey = true;
@@ -122,6 +124,15 @@ public class LavaStrategy extends TrapStrategy{
 		keyPos.addLast(outKey);
 		keyPos.remove(insideNearestKey);
 		keyPos.addFirst(insideNearestKey);
+		
+		if(keyPos.contains(new Coordinate(-9999,-9999))) {
+			keyPos.remove(new Coordinate(-9999,-9999));
+		}
+		
+		if(keyPos.contains(outsidePos)) {
+			keyPos.remove(outsidePos);
+		}
+		
 		if (keyPos.size() == 1 && keyPos.contains(new Coordinate(-9999,-9999)) || keyPos.size() == 1 && keyPos.contains(outsidePos)) {
 			keyPos.clear();
 		}
