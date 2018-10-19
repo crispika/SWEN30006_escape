@@ -55,12 +55,13 @@ public class LavaStrategy extends TrapStrategy{
 			}
 		}
 		ArrayList<Coordinate> canExplore = canExplore(temp, visted);
-		System.out.println("canExplore - all escapePoint: " + canExplore);
+		System.out.println("canExplore - all escapePoint (lava): " + canExplore);
 		Coordinate outsidePos = randomPick(canExplore);
-		System.err.println("----------------escapePoint setted to-----------");
+		//Coordinate outsidePos = canExplore.get(2);
 		escapePoint = outsidePos;
-		System.err.println(escapePoint);
-		System.err.println("-------------------");
+		System.out.println("---------escapePoint setted to (lava)-----------");
+		System.out.println(escapePoint);
+		System.out.println("-------------------");
 		Coordinate outKey = new Coordinate(-9999,-9999);
 		int nearest = 99999;
 		for (Coordinate keypos: keyPos) {

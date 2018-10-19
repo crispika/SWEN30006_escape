@@ -63,25 +63,50 @@ public class SafeExplore {
 					if (SafeExplore.getInstance().canSafeAhead(
 							SafeExplore.getInstance().nextDirection(car.getOrientation(), turnRight), currPos)) {
 						car.turnLeft();
-						clockwise = false;
+						//clockwise = false;
 					} else {
 						car.turnRight();
-						clockwise = true;
+						//clockwise = true;
 					}
 					findwall = true;
 				}
 			}
 		}
 		else {
+			if(ifSafe(car.getOrientation(),currPos,"right") && !ifSafe(car.getOrientation(),currPos,"left")){
+				clockwise = true;
+			}
+			if(!ifSafe(car.getOrientation(),currPos,"right") && ifSafe(car.getOrientation(),currPos,"left")){
+				clockwise = false;
+			}
+
+
+
+			System.out.println("---------SafeExplore--------");
+			System.out.println("CurrentPos(SafeExplore): "+currPos);
 			if (!clockwise) {
+
 				if(ifSafe(car.getOrientation(),currPos,"right")) {
 					car.turnRight();
 				}
-				else if(ifSafe(car.getOrientation(),currPos,"ahead")){
-					car.applyForwardAcceleration();
+				else if (MyAIController.getCarForward()){
+					System.out.println("forward");
+					if(ifSafe(car.getOrientation(),currPos,"ahead")){
+						car.applyForwardAcceleration();
+					}
+					else{
+						car.turnLeft();
+					}
 				}
 				else{
-					car.turnLeft();
+					System.out.println("back");
+					if(ifSafe(car.getOrientation(),currPos,"back")){
+						car.applyReverseAcceleration();
+					}
+					else{
+						car.turnLeft();
+					}
+
 				}
 
 
@@ -98,20 +123,32 @@ public class SafeExplore {
 //				}
 			}
 			else {
+
 				if(ifSafe(car.getOrientation(),currPos,"left")) {
-					System.out.println(car.getSpeed());
+					System.out.println(MyAIController.getCarForward());
 					car.turnLeft();
 
 				}
-				else if(ifSafe(car.getOrientation(),currPos,"ahead")){
-					car.applyForwardAcceleration();
-
+				else if (MyAIController.getCarForward()){
+					System.out.println("forward-");
+					if(ifSafe(car.getOrientation(),currPos,"ahead")){
+						car.applyForwardAcceleration();
+					}
+					else{
+						car.turnRight();
+					}
 				}
 				else{
-					System.out.println("-------right");
-					car.turnRight();
+					System.out.println("back-");
+					if(ifSafe(car.getOrientation(),currPos,"back")){
+						car.applyReverseAcceleration();
+					}
+					else{
+						car.turnRight();
+					}
 
 				}
+
 
 
 
@@ -431,6 +468,16 @@ public class SafeExplore {
 					return false;
 				}
 				if(mapTile_a instanceof HealthTrap ||(!mapTile_a.isType(Type.WALL) && !mapTile_a.isType(Type.TRAP) && !mapTile_a.isType(Type.EMPTY))){
+					return true;
+				}
+				break;
+			case "back":
+				Coordinate back = findBehindCoordinate(orientation,currPos);
+				MapTile mapTile_b = successors.get(back);
+				if(mapTile_b == null || !MapManager.getInstance().isReachable(back)){
+					return false;
+				}
+				if(mapTile_b instanceof HealthTrap ||(!mapTile_b.isType(Type.WALL) && !mapTile_b.isType(Type.TRAP) && !mapTile_b.isType(Type.EMPTY))){
 					return true;
 				}
 				break;

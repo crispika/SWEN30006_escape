@@ -294,8 +294,10 @@ public class MyAIController extends CarController{
 					}
 				}
 				else {
-					System.err.println(currGoal);
-					System.out.println("---------------Moving to Goal--------------");
+					//System.err.println(currGoal);
+					System.out.println("------------Moving to Goal (Controller)------------");
+					System.out.println(currPos + " TO " +currGoal);
+					System.out.println("------------------");
 					GoalExplore.getInstance().moveToPos(currGoal);
 					
 				}
