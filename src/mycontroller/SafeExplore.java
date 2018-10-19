@@ -49,9 +49,11 @@ public class SafeExplore {
 		// MapManager.getInstance().getDirSuccessors();
 
 		if (car.getSpeed() == 0 && canSafeAhead(car.getOrientation(), currPos)) {
+			MyAIController.setCarFoward(true);
 			car.applyForwardAcceleration();
 		}
 		else {
+			//MyAIController.setCarFoward(false);
 			//car.applyReverseAcceleration();
 		}
 		if(car.getSpeed()< 0) {
@@ -60,6 +62,7 @@ public class SafeExplore {
 		if (!findwall) {
 			if (car.getSpeed() > 0) {
 				if (SafeExplore.getInstance().canSafeAhead(car.getOrientation(), currPos)) {
+					MyAIController.setCarFoward(true);
 					car.applyForwardAcceleration();
 				} else {
 					boolean turnRight = false;
@@ -78,7 +81,7 @@ public class SafeExplore {
 			}
 		}
 		else {
-
+			System.out.println("hit wall here:" + hitWall);
 			if(reset){
 				if(ifSafe(car.getOrientation(),currPos,"right") && !ifSafe(car.getOrientation(),currPos,"left")){
 					clockwise = true;
@@ -100,6 +103,7 @@ public class SafeExplore {
 				else if (MyAIController.getCarForward()){
 					System.out.println("forward");
 					if(ifSafe(car.getOrientation(),currPos,"ahead")){
+						MyAIController.setCarFoward(true);
 						car.applyForwardAcceleration();
 					}
 					else{
@@ -109,6 +113,7 @@ public class SafeExplore {
 				else{
 					System.out.println("back");
 					if(ifSafe(car.getOrientation(),currPos,"back")){
+						MyAIController.setCarFoward(false);
 						car.applyReverseAcceleration();
 					}
 					else{
@@ -140,6 +145,7 @@ public class SafeExplore {
 				else if (MyAIController.getCarForward()){
 					System.out.println("forward-");
 					if(ifSafe(car.getOrientation(),currPos,"ahead")){
+						MyAIController.setCarFoward(true);
 						car.applyForwardAcceleration();
 					}
 					else{
@@ -149,6 +155,7 @@ public class SafeExplore {
 				else{
 					System.out.println("back-");
 					if(ifSafe(car.getOrientation(),currPos,"back")){
+						MyAIController.setCarFoward(false);
 						car.applyReverseAcceleration();
 					}
 					else{
