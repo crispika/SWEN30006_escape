@@ -17,6 +17,8 @@ public class SafeExplore {
 	private boolean clockwise;
 	private Coordinate hitWall = new Coordinate(-1,-1);
 
+	private boolean reset = true;
+
 	public static SafeExplore getInstance() {
 		if(sm == null) {
 			sm = new SafeExplore();
@@ -32,6 +34,9 @@ public class SafeExplore {
 		findwall = false;
 		MapManager.getInstance().clearTempMap();
 		hitWall = new Coordinate(-1,-1);
+
+		reset = true;
+
 	}
 
 	public Coordinate getHitWallPoint() {
@@ -73,13 +78,16 @@ public class SafeExplore {
 			}
 		}
 		else {
-			if(ifSafe(car.getOrientation(),currPos,"right") && !ifSafe(car.getOrientation(),currPos,"left")){
-				clockwise = true;
-			}
-			if(!ifSafe(car.getOrientation(),currPos,"right") && ifSafe(car.getOrientation(),currPos,"left")){
-				clockwise = false;
-			}
 
+			if(reset){
+				if(ifSafe(car.getOrientation(),currPos,"right") && !ifSafe(car.getOrientation(),currPos,"left")){
+					clockwise = true;
+				}
+				if(!ifSafe(car.getOrientation(),currPos,"right") && ifSafe(car.getOrientation(),currPos,"left")){
+					clockwise = false;
+				}
+				reset = false;
+			}
 
 
 			System.out.println("---------SafeExplore--------");
