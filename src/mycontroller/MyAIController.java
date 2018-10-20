@@ -462,6 +462,7 @@ public class MyAIController extends CarController{
 					System.out.println(currPos + " TO " +currGoal);
 					//for test:
 					System.out.println("currPos is: " + printCurrMaptile(currPos));
+					System.out.println("Health: " +getHealth());
 					System.out.println("------------------");
 					GoalExplore.getInstance().moveToPos(currGoal);
 
