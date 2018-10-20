@@ -36,6 +36,7 @@ public class MapManager {
 	private ArrayList<Coordinate> keylist = new ArrayList<Coordinate>();
 	private ArrayList<Coordinate> safePos = new ArrayList<Coordinate>();
 	private ArrayList<Coordinate> reachable = new ArrayList<Coordinate>();
+	private ArrayList<Coordinate> fakeReachable = new ArrayList<>();
 	private ArrayList<Coordinate> keytype = new ArrayList<>();
 	
 	private HashMap<String, MapTile> dirSuccessors ;
@@ -313,21 +314,43 @@ public class MapManager {
 		return dirSuccessors;
 	}
 	
-	public void cleanReachable() {	// remove point with 3 walls around which is "DeadEnd" 
+	public void cleanReachable() {    // remove point with 3 walls around which is "DeadEnd"
 		Iterator<Coordinate> iterator = reachable.iterator();
-		while(iterator.hasNext()) {
+		while (iterator.hasNext()) {
 			Coordinate pos = iterator.next();
 			HashMap<Coordinate, MapTile> successors = getSuccessors(pos);
 			int count = 0;
-			for (Coordinate key: successors.keySet()) {
+			for (Coordinate key : successors.keySet()) {
 				if (successors.get(key) == null) {
-					count+=1;
+					count += 1;
 				}
 			}
 			if (count >= 3) {
 				iterator.remove();
 			}
 		}
+		fakeReachable.clear();
+		fakeReachable.addAll(reachable);
+		Iterator<Coordinate> fakeIterator = fakeReachable.iterator();
+		while (fakeIterator.hasNext()) {
+			Coordinate safePos = fakeIterator.next();
+			HashMap<Coordinate, MapTile> successors2 = getSuccessors(safePos);
+			int count2 = 0;
+			for (Coordinate safeKey : successors2.keySet()) {
+				if (successors2.get(safeKey) == null || successors2.get(safeKey).isType(Type.TRAP)) {
+					count2 += 1;
+				}
+			}
+			if (count2 >= 3) {
+				fakeIterator.remove();
+			}
+		}
+	}
+	public boolean isFakeReachable(Coordinate pos){
+		if (fakeReachable.contains(pos)){
+			return true;
+		}
+		return false;
 	}
 
 	public void resetReachable() {
