@@ -3,17 +3,14 @@ package mycontroller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-
 import controller.CarController;
-import javafx.geometry.Pos;
 import tiles.HealthTrap;
 import tiles.LavaTrap;
 import tiles.MapTile;
 import tiles.MudTrap;
 import tiles.MapTile.Type;
 import utilities.Coordinate;
-import world.WorldSpatial;
-import world.WorldSpatial.Direction;
+
 
 /*
  * This class is a singleton to maintain all information of the map

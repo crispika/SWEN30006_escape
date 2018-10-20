@@ -3,8 +3,6 @@ package mycontroller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.PrimitiveIterator.OfDouble;
-
 import controller.CarController;
 import tiles.GrassTrap;
 import tiles.HealthTrap;
