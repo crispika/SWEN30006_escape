@@ -402,6 +402,8 @@ public class MyAIController extends CarController{
 					//System.err.println(currGoal);
 					System.out.println("------------Moving to Goal (Controller)------------");
 					System.out.println(currPos + " TO " +currGoal);
+					//for test:
+					System.out.println("currPos is: " + printCurrMaptile(currPos));
 					System.out.println("------------------");
 					GoalExplore.getInstance().moveToPos(currGoal);
 
@@ -470,5 +472,19 @@ public class MyAIController extends CarController{
 		combineCanExplore(localcanExplore);
 		Coordinate possGoal = lavaDealer.nearestSafePoint(localcanExplore, currPos);
 		return possGoal;
+	}
+
+	//for test:
+	public String printCurrMaptile(Coordinate currPos){
+		MapTile map = MapManager.getInstance().getrealMap().get(currPos);
+		if(map instanceof LavaTrap){
+			return "Lava";
+		}
+		else if (map instanceof  GrassTrap){
+			return "Grass";
+		}
+		else{
+			return map.getType().toString();
+		}
 	}
 }
