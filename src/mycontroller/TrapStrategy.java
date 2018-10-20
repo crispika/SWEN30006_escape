@@ -12,6 +12,11 @@ import tiles.MapTile.Type;
 import utilities.Coordinate;
 import world.WorldSpatial;
 
+/*
+ * superClass of all trapStrategy
+ * shared some common functions/variables used by all strategies
+ */
+
 public abstract class TrapStrategy {
 	
 	protected ArrayList<Coordinate> canExplore;

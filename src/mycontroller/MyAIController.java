@@ -23,25 +23,25 @@ public class MyAIController extends CarController{
 	private final int CAR_MAX_SPEED = 1;
 	private int view;
 	private Coordinate start;
-	private ArrayList<Coordinate> visted = new ArrayList<>(); 
-	private boolean inSafeExplore = true;
-	private Coordinate currGoal;
-	private int safeCounter = 0;
+	private ArrayList<Coordinate> visted = new ArrayList<>(); // records all points the car has visited
+	private boolean inSafeExplore = true;// state when in safe-explore
+	private Coordinate currGoal;//goal position for goal-explore, move to this location
+	private int safeCounter = 0; // counter of rounds of safe-explore
 	private boolean inFire = false;
-	private int stepCounter = 0;
+	private int stepCounter = 0; // counter of the steps in safe-exploring
 	
-	private boolean inHealth = false;
+	private boolean inHealth = false; // state when stopping in the health trap for recovering
 	private Coordinate possibleGoal; // when catching the key, if the calculated escapePoint is a undetected lava, use this goal to escape to the unexplored safepoint;
 	private Coordinate futureGoal; // when stopped to get health, saved the future goal to move;
 	
 	private ArrayList<Coordinate> allunExplore = new ArrayList<>();// maybe for use of collect all unExplore points
 	private static boolean carForward = true;
-	private Coordinate escapeGoal;
-	private boolean hasGoaltoCatchKey;
-	private Coordinate catchKeyGoal;
+	private Coordinate escapeGoal; //when catch one key in exploring the map, the goal is to escape from the lava area
+	private boolean hasGoaltoCatchKey; // To find a nearest healthtrap, tragger to start the process of catching all key after game after locating all their locations.
+	private Coordinate catchKeyGoal; //when catch 2 keys in exploring the map, the coordinate is the goal of location of the first key.
 	
-	private boolean inCatchKey;
-	private Coordinate furtherKey;
+	private boolean inCatchKey; //State when catching first key of the 2 keys.
+	private Coordinate furtherKey; // location/goal of the second key location when catching 2 keys in exploring
 	
 	public MyAIController(Car car) {
 		super(car);
@@ -88,6 +88,19 @@ public class MyAIController extends CarController{
 						}
 						else {
 							inHealth = false;
+							//test
+							if(unCatchedKey.size() == 0) {
+								System.out.println("-----------!!!nice!!!---to the exit!!!!!!!------------");
+								catchKeyGoal = MapManager.getInstance().getFinish();
+
+							}
+							else {
+								catchKeyGoal = unCatchedKey.get(0);
+								System.err.println("--------to catch key: " + catchKeyGoal);
+							}
+
+
+
 						}
 					}
 					else if(getHealth() < 70) {
@@ -179,7 +192,7 @@ public class MyAIController extends CarController{
 						//GoalExplore.getInstance().initGoalExplore();
 						GoalExplore.getInstance().moveToPos(currGoal);
 					}
-					else { // catch 2 key and escape
+					else { // catch 2 key and escape from this area to explore a new area
 						currGoal = lavaDealer.catch2Keys(temp, visted);
 						if(currGoal == null) {
 							currGoal = lavaDealer.randomPick(allunExplore);
@@ -200,7 +213,7 @@ public class MyAIController extends CarController{
 					
 						
 				}
-				//only grass case
+				//only grass case - just randomly pick a visiable grass with road behind and come through it
 				else if(trapCount.size() == 1 && trapCount.contains("Grass")) {		
 					currGoal = grassDealer.chooseGoal(temp, visted,getHealth());
 					if(currGoal == null) {
@@ -212,6 +225,8 @@ public class MyAIController extends CarController{
 				}
 				
 				//when found health trap:
+				//if health< 100, go to recover, and then using the lavaStrategy patten to escape (organized all code in the healthStratgy)
+
 				else{
 					currGoal = healthDealer.chooseGoal(temp, visted, getHealth());
 					if(currGoal == null) {
@@ -236,8 +251,8 @@ public class MyAIController extends CarController{
 					GoalExplore.getInstance().moveToPos(currGoal);
 				}
 			}
-			
-			
+
+			//State in safe-explore - searching new area by considering all lava and grass as walls and exploring besides the wall
 			if(inSafeExplore) {
 				SafeExplore.getInstance().safeExplore();
 				stepCounter +=1;
@@ -260,8 +275,8 @@ public class MyAIController extends CarController{
 					if(path != null) {
 						toNearestHeathPos = path.size();
 					}
-					
-					
+
+					// state when catching the second key or the only key
 					if(inFire) {
 						System.out.println("-------------------infire---------------------");
 						//TODO Escape after get key:
@@ -289,6 +304,10 @@ public class MyAIController extends CarController{
 						System.out.println("-----------get the key-----------");
 						
 					}
+
+					//state after catched the second key or the only key.
+					//if the preConsidered "escapePoint" is actually a lava because of view limit, selected the real escape point (possibleGoal) to the new area
+
 					else if(!inCatchKey && MapManager.getInstance().getrealMap().get(currPos) instanceof LavaTrap) {
 						System.out.println("---------------escaping by explore-----------------");
 						//TODO Escape from undetected lavaTrap:
@@ -296,17 +315,23 @@ public class MyAIController extends CarController{
 						//GoalExplore.getInstance().initGoalExplore();
 						//GoalExplore.getInstance().moveToPos(currGoal);
 					}
+
+					// state to recover
 					else if(inHealth) {
 						if (getHealth()<100) {
-							applyBrake();
 							System.out.println("---------------stop for getting health---------------");
+							applyBrake();
 						}
+
+						// reload the origin goal before coming here to recover
 						else {
 							MapTile futuregoal = MapManager.getInstance().getrealMap().get(futureGoal);
 							if( (futuregoal.isType(Type.ROAD) || futuregoal instanceof HealthTrap) && !MapManager.getInstance().isDeadRoad(futureGoal)) {
 								currGoal = futureGoal;
 								System.err.println("future goal can work : " + futureGoal);
 							}
+
+							// if the origin goal is not valid becauee of view limit, choose a new safe point to escape
 							else {
 								HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
 								//System.out.println("originTemp: " + temp);
@@ -327,14 +352,18 @@ public class MyAIController extends CarController{
 						}
 						
 					}
+
+					//catching 1st key of 2 keys when health is enough
+
 					else if(inCatchKey) {
 						currGoal = furtherKey;
 						inCatchKey = false;
 						System.out.println("-------------inCatchKey setted to false-----------------");
 						inFire = true;
 					}
-					
-					else if (getHealth() < 65 && toNearestHeathPos <20) {
+
+					//if health is not enough and there is a healthtrap nearby, go to recover
+					else if (getHealth() < 70 && toNearestHeathPos <30) {
 						System.err.println("-----------------health<65, to catch health------------------------");
 						//ArrayList<Coordinate> path = Search.BFS_findPathToCloestH(currPos);
 						currGoal = path.get(path.size() -1);
@@ -382,8 +411,8 @@ public class MyAIController extends CarController{
 			}
 		}
 	}
-	
-	
+
+	//maintain whether the car is accerlating or reversing
 	public static void setCarFoward(boolean carOrien) {
 		carForward = carOrien;
 	}
@@ -392,6 +421,8 @@ public class MyAIController extends CarController{
 		return carForward;
 	}
 
+
+	//record all possible unExplored points in exploring process
 
 	public void combineCanExplore(ArrayList<Coordinate> canExplore) {
 		Iterator<Coordinate> iterator = allunExplore.iterator();

@@ -7,7 +7,9 @@ import tiles.MapTile;
 import utilities.Coordinate;
 
 public class GrassStrategy extends TrapStrategy{
-	
+	/*
+	 * strategy when facing grassTrap
+	 */
 	
 	
 	@Override

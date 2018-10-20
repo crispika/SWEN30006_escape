@@ -12,6 +12,13 @@ import tiles.LavaTrap;
 import tiles.MapTile;
 import utilities.Coordinate;
 
+/*
+ * strategy when facing new area which has HealthTrap
+ * when the health is not enough, go to recover
+ * when there is a lava, find 1 key and escape this area to explore new area
+ * when there is only plain lava or grass, find one point out of this safe-explore area and go out to reach new area
+ */
+
 public class HealthStrategy extends TrapStrategy{
 	
 	private boolean inHealth = false;

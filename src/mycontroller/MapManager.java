@@ -15,6 +15,11 @@ import utilities.Coordinate;
 import world.WorldSpatial;
 import world.WorldSpatial.Direction;
 
+/*
+ * This class is a singleton to maintain all information of the map
+ * As an information expert
+ */
+
 public class MapManager {
 	private static MapManager manager;
 	
@@ -140,7 +145,9 @@ public class MapManager {
 	public Coordinate getFinish() {
 		return finish;
 	}
-	
+
+
+	//find all detected and reachable healthTraps
 	public void cleanHealthPos() {
 		resetReachable();
 		Iterator<Coordinate> iterator = safePos.iterator();
@@ -168,7 +175,9 @@ public class MapManager {
 		System.err.println("-----nearest health point is: " + nearPos);
 		return nearPos;
 	}
-	
+
+
+	//find all reachable but undetected location in the map
 	public ArrayList<Coordinate> unScannedPoint(){
 		resetReachable();
 		ArrayList<Coordinate> unScannedPoint = new ArrayList<>();
@@ -256,7 +265,9 @@ public class MapManager {
 		}
 		return realMap.get(new Coordinate(Integer.toString(pos.x-1) + "," + Integer.toString(pos.y)));
 	}
-	
+
+
+	//to show four successors of one coordinate
 	public HashMap<Coordinate, MapTile> getSuccessors(Coordinate currPos){
 		HashMap<Coordinate, MapTile> successors = new HashMap<Coordinate, MapTile>();
 		dirSuccessors = new HashMap<String, MapTile>();

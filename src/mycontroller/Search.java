@@ -9,6 +9,10 @@ import java.util.*;
 
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSorter.Distance;
 
+/*
+ * static helper methods such of DFS, BFS, ManhatonDistance
+ */
+
 public class Search {
 
     public static ArrayList DFS(Coordinate start) {

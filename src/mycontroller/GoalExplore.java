@@ -10,6 +10,9 @@ import tiles.MudTrap;
 import utilities.Coordinate;
 import world.WorldSpatial;
 
+/*
+ * Search Algorithm based on BFS to return the shortest path to the goal and move to it;
+ */
 public class GoalExplore {
 	
 	private static GoalExplore ge;

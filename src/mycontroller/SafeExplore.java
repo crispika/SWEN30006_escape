@@ -10,6 +10,11 @@ import utilities.Coordinate;
 import world.WorldSpatial;
 import world.WorldSpatial.Direction;
 
+/*
+ * search algorism to search new area by viewing all lava and grass as a wall
+ * basically will explore around the wall
+ */
+
 public class SafeExplore {
 	private static SafeExplore sm;
 	private CarController car;
@@ -81,7 +86,7 @@ public class SafeExplore {
 			}
 		}
 		else {
-			System.out.println("hit wall here:" + hitWall);
+			//System.out.println("hit wall here:" + hitWall);
 			if(reset){
 				if(ifSafe(car.getOrientation(),currPos,"right") && !ifSafe(car.getOrientation(),currPos,"left")){
 					clockwise = true;
@@ -93,15 +98,15 @@ public class SafeExplore {
 			}
 
 
-			System.out.println("---------SafeExplore--------");
-			System.out.println("CurrentPos(SafeExplore): "+currPos);
+			//System.out.println("---------SafeExplore--------");
+			//System.out.println("CurrentPos(SafeExplore): "+currPos);
 			if (!clockwise) {
 
 				if(ifSafe(car.getOrientation(),currPos,"right")) {
 					car.turnRight();
 				}
 				else if (MyAIController.getCarForward()){
-					System.out.println("forward");
+					//System.out.println("forward");
 					if(ifSafe(car.getOrientation(),currPos,"ahead")){
 						MyAIController.setCarFoward(true);
 						car.applyForwardAcceleration();
@@ -111,7 +116,7 @@ public class SafeExplore {
 					}
 				}
 				else{
-					System.out.println("back");
+					//System.out.println("back");
 					if(ifSafe(car.getOrientation(),currPos,"back")){
 						MyAIController.setCarFoward(false);
 						car.applyReverseAcceleration();
@@ -138,12 +143,12 @@ public class SafeExplore {
 			else {
 
 				if(ifSafe(car.getOrientation(),currPos,"left")) {
-					System.out.println(MyAIController.getCarForward());
+					//System.out.println(MyAIController.getCarForward());
 					car.turnLeft();
 
 				}
 				else if (MyAIController.getCarForward()){
-					System.out.println("forward-");
+					//System.out.println("forward-");
 					if(ifSafe(car.getOrientation(),currPos,"ahead")){
 						MyAIController.setCarFoward(true);
 						car.applyForwardAcceleration();
@@ -153,7 +158,7 @@ public class SafeExplore {
 					}
 				}
 				else{
-					System.out.println("back-");
+					//System.out.println("back-");
 					if(ifSafe(car.getOrientation(),currPos,"back")){
 						MyAIController.setCarFoward(false);
 						car.applyReverseAcceleration();

@@ -8,6 +8,13 @@ import tiles.LavaTrap;
 import tiles.MapTile;
 import utilities.Coordinate;
 
+/*
+ * strategy when facing Lava
+ * if health is enough, will try to catch 2 keys. 1st is the nearest key around the init explore point and 2nd is the nearest key around the escaping point to out this area
+ * chooseGoal is for finding 1 key
+ * catch2Keys is for catching 2 keys when health is enough
+ */
+
 public class LavaStrategy extends TrapStrategy{
 	
 	
