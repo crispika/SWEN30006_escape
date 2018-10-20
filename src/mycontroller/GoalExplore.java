@@ -96,7 +96,7 @@ public class GoalExplore {
             action = "stop";
         }
         else{
-            path = Search.BFS_findPathToPos(currentPos,goal);
+            path = Search.uniCostSearch(currentPos,goal);
             Coordinate nextPos = path.get(1);
             action = action(currentPos, nextPos);
         }

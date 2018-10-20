@@ -54,9 +54,6 @@ public class MyAIController extends CarController{
 
 	@Override
 	public void update() {
-
-
-
 		//save all viewed map to the real map
 		MapManager.getInstance().setScanMap();
 		//save the visted position;
