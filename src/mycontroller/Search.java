@@ -68,6 +68,72 @@ public class Search {
         }
         return null;
     }
+
+    public static ArrayList uniCostSearch(Coordinate startPos, Coordinate goalPos) {
+        int lavaCost = 2;
+        int grassCost = 3;
+        int roadCost = 1;
+
+
+        ArrayList<Coordinate> visited = new ArrayList<Coordinate>();
+        HashMap<Coordinate, ArrayList> allPath = new HashMap<Coordinate, ArrayList>();
+        HashMap<Coordinate, Integer> pathCost = new HashMap<Coordinate, Integer>();
+        HashMap<Coordinate,MapTile> realMap = MapManager.getInstance().getrealMap();
+
+        Queue<Coordinate> priQueue = new LinkedList<Coordinate>();
+        MapManager map = MapManager.getInstance();
+
+        priQueue.offer(startPos);
+        visited.add(startPos);
+
+        ArrayList<Coordinate> path = new ArrayList<Coordinate>();
+        path.add(startPos);
+        allPath.put(startPos,path);
+        pathCost.put(startPos,0);
+
+        while (!priQueue.isEmpty()) {
+            Coordinate pos = priQueue.poll();
+            for (Coordinate key: map.getSuccessors(pos).keySet()) {
+                path = new ArrayList<Coordinate>(allPath.get(pos));
+
+                if (map.getSuccessors(pos).get(key) != null && !visited.contains(key)) {
+                    priQueue.offer(key);
+                    visited.add(key);
+                    path.add(key);
+                    allPath.put(key,path);
+
+                    int pointCost = 0;
+                    MapTile pointTile = realMap.get(key);
+                    switch(pointTile.getType()){
+                        case TRAP:
+
+                            break;
+                        case ROAD:
+
+                            break;
+                        default:
+                            break;
+                    }
+
+
+
+
+                    if (key.equals(goalPos)){
+                        return allPath.get(key);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+
+
+
+
+
+
     
     public static int manhatonDistance(Coordinate x, Coordinate y) {
     	int mdistance = Math.abs(x.x - y.x) + Math.abs(x.y-y.y);
