@@ -3,6 +3,8 @@ package mycontroller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
+
 import controller.CarController;
 import tiles.*;
 import tiles.MapTile.Type;
@@ -352,6 +354,10 @@ public class MyAIController extends CarController{
 //						possibleGoal = lavaDealer.nearestSafePoint(localcanExplore, currPos);
 
 						possibleGoal = newFoundRoadByGoalExplore(currPos);
+						
+						if(possibleGoal == null) {
+							possibleGoal = lavaDealer.randomPick(allunExplore);
+						}
 						//System.err.println("posiblegoal: "+possibleGoal);
 
 
@@ -398,14 +404,21 @@ public class MyAIController extends CarController{
 
 							// if the origin goal is not valid becauee of view limit, choose a new safe point to escape
 							else {
-								HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
-								//System.out.println("originTemp: " + temp);
-								cleanTemp(temp);
-								//System.out.println("cleanedTemp: " + temp);
-								ArrayList<Coordinate> canExplore = lavaDealer.canExplore(temp,visted);
-								//System.err.println("inHealth case, redetected Canexplore goal: " + canExplore);
-								combineCanExplore(canExplore);
-								currGoal = healthDealer.randomPick(canExplore);
+//								HashMap<Coordinate, MapTile> temp = MapManager.getInstance().getGoalTempMap();
+//								//System.out.println("originTemp: " + temp);
+//								cleanTemp(temp);
+//								//System.out.println("cleanedTemp: " + temp);
+//								ArrayList<Coordinate> canExplore = lavaDealer.canExplore(temp,visted);
+//								System.err.println("inHealth case, redetected Canexplore goal: " + canExplore);
+//								combineCanExplore(canExplore);
+//								
+//								currGoal = healthDealer.randomPick(canExplore);
+								if (newFoundRoadByGoalExplore(currPos) != null) {
+									currGoal = newFoundRoadByGoalExplore(currPos);
+								}
+								else {
+									currGoal = healthDealer.randomPick(allunExplore);
+								}
 								//System.err.println("future goal can't work, changed to goal: " + currGoal);
 							}
 
@@ -529,8 +542,12 @@ public class MyAIController extends CarController{
 		ArrayList<Coordinate> localcanExplore = lavaDealer.canExplore(temp,visted);
 		//System.err.println("Canexplore: " + localcanExplore);
 		combineCanExplore(localcanExplore);
-		Coordinate possGoal = lavaDealer.nearestSafePoint(localcanExplore, currPos);
-		return possGoal;
+		if (localcanExplore.size() > 0) {
+			Coordinate possGoal = lavaDealer.nearestSafePoint(localcanExplore, currPos);
+			return possGoal;
+		}
+		return null;
+		
 	}
 
 	//for test:
