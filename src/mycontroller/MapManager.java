@@ -343,6 +343,7 @@ public class MapManager {
 			}
 			if (count2 >= 3) {
 				fakeIterator.remove();
+
 			}
 		}
 	}

@@ -1,7 +1,9 @@
 package mycontroller;
 
 import controller.CarController;
+import tiles.GrassTrap;
 import tiles.HealthTrap;
+import tiles.LavaTrap;
 import tiles.MapTile;
 import utilities.Coordinate;
 
@@ -34,7 +36,7 @@ public class Search {
         return visited;
     }
 
-    public static ArrayList BFS_findPathToPos(Coordinate startPos, Coordinate goalPos) {
+    public static ArrayList BFS_findPathToPos2(Coordinate startPos, Coordinate goalPos) {
         ArrayList<Coordinate> visited = new ArrayList<Coordinate>();
         HashMap<Coordinate, ArrayList> allPath = new HashMap<Coordinate, ArrayList>();
 
@@ -68,6 +70,81 @@ public class Search {
         }
         return null;
     }
+
+    public static ArrayList BFS_findPathToPos(Coordinate startPos, Coordinate goalPos) {
+        int lavaCost = 2;
+        int grassCost = 3;
+        int roadCost = 1;
+
+
+        ArrayList<Coordinate> visited = new ArrayList<Coordinate>();
+        HashMap<Coordinate, ArrayList> allPath = new HashMap<Coordinate, ArrayList>();
+        HashMap<Coordinate, Integer> pathCost = new HashMap<Coordinate, Integer>();
+        HashMap<Coordinate,MapTile> realMap = MapManager.getInstance().getrealMap();
+
+        Comparator<Coordinate> cmp = new Comparator<Coordinate>() {
+            @Override
+            public int compare(Coordinate x1, Coordinate x2) {
+                return pathCost.get(x1) - pathCost.get(x2);
+            }
+        };
+
+        PriorityQueue<Coordinate> priQueue = new PriorityQueue<Coordinate>(cmp);
+        MapManager map = MapManager.getInstance();
+
+        priQueue.offer(startPos);
+        visited.add(startPos);
+
+        ArrayList<Coordinate> path = new ArrayList<Coordinate>();
+        path.add(startPos);
+        allPath.put(startPos,path);
+        pathCost.put(startPos,0);
+
+        while (!priQueue.isEmpty()) {
+            Coordinate pos = priQueue.poll();
+            for (Coordinate key: map.getSuccessors(pos).keySet()) {
+                path = new ArrayList<Coordinate>(allPath.get(pos));
+
+                if (map.getSuccessors(pos).get(key) != null && !visited.contains(key)) {
+                    //priQueue.add(key);
+                    visited.add(key);
+                    path.add(key);
+                    allPath.put(key,path);
+
+                    int pointCost = 0;
+                    MapTile pointTile = realMap.get(key);
+                    switch(pointTile.getType()){
+                        case TRAP:
+                            if(pointTile instanceof GrassTrap){
+                                pointCost = pathCost.get(pos) + grassCost;
+                            }
+                            else if(pointTile instanceof LavaTrap){
+                                pointCost = pathCost.get(pos) + lavaCost;
+                            }
+                            else{
+                                pointCost = pathCost.get(pos) + roadCost;
+                            }
+                            break;
+                        case ROAD:
+                            pointCost = pathCost.get(pos) + roadCost;
+                            break;
+                        default:
+                            pointCost = pathCost.get(pos) + roadCost;
+                            break;
+                    }
+                    pathCost.put(key,pointCost);
+                    priQueue.add(key);
+
+                    if (key.equals(goalPos)){
+                        return allPath.get(key);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
     
     public static int manhatonDistance(Coordinate x, Coordinate y) {
     	int mdistance = Math.abs(x.x - y.x) + Math.abs(x.y-y.y);
