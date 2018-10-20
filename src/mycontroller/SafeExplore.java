@@ -464,7 +464,7 @@ public class SafeExplore {
 			case "left":
 				Coordinate left = findLeftCoordinate(orientation,currPos);
 				MapTile mapTile_l = successors.get(left);
-				if(mapTile_l == null || !MapManager.getInstance().isReachable(left)){
+				if(mapTile_l == null || !MapManager.getInstance().isFakeReachable(left)){
 					return false;
 				}
 				if(mapTile_l instanceof HealthTrap ||(!mapTile_l.isType(Type.WALL) && !mapTile_l.isType(Type.TRAP) && !mapTile_l.isType(Type.EMPTY))){
@@ -474,7 +474,7 @@ public class SafeExplore {
 			case "right":
 				Coordinate right = findRightCoordinate(orientation,currPos);
 				MapTile mapTile_r = successors.get(right);
-				if(mapTile_r == null || !MapManager.getInstance().isReachable(right)){
+				if(mapTile_r == null || !MapManager.getInstance().isFakeReachable(right)){
 					return false;
 				}
 				if(mapTile_r instanceof HealthTrap ||(!mapTile_r.isType(Type.WALL) && !mapTile_r.isType(Type.TRAP) && !mapTile_r.isType(Type.EMPTY))){
@@ -484,7 +484,7 @@ public class SafeExplore {
 			case "ahead":
 				Coordinate ahead = findNextCoordinate(orientation,currPos);
 				MapTile mapTile_a = successors.get(ahead);
-				if(mapTile_a == null || !MapManager.getInstance().isReachable(ahead)){
+				if(mapTile_a == null || !MapManager.getInstance().isFakeReachable(ahead)){
 					return false;
 				}
 				if(mapTile_a instanceof HealthTrap ||(!mapTile_a.isType(Type.WALL) && !mapTile_a.isType(Type.TRAP) && !mapTile_a.isType(Type.EMPTY))){
@@ -494,7 +494,7 @@ public class SafeExplore {
 			case "back":
 				Coordinate back = findBehindCoordinate(orientation,currPos);
 				MapTile mapTile_b = successors.get(back);
-				if(mapTile_b == null || !MapManager.getInstance().isReachable(back)){
+				if(mapTile_b == null || !MapManager.getInstance().isFakeReachable(back)){
 					return false;
 				}
 				if(mapTile_b instanceof HealthTrap ||(!mapTile_b.isType(Type.WALL) && !mapTile_b.isType(Type.TRAP) && !mapTile_b.isType(Type.EMPTY))){
