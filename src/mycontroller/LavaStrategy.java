@@ -36,8 +36,8 @@ public class LavaStrategy extends TrapStrategy{
 		if(keyPos.size() == 0) {
 			if(canExplore.size() > 0) {
 				Coordinate currGoal = randomPick(canExplore);
-				System.err.println(currGoal);
-				System.out.println("canExplore: "+canExplore);
+				//System.err.println(currGoal);
+				//System.out.println("canExplore: "+canExplore);
 				return currGoal;
 			}
 			return null;
@@ -45,7 +45,7 @@ public class LavaStrategy extends TrapStrategy{
 		else{
 			Coordinate currGoal = keyPos.pollLast();
 			inFire = true;
-			System.err.println("!!! infire has been setted");
+			//System.err.println("!!! infire has been setted");
 			return currGoal;
 		}
 	}
@@ -63,8 +63,8 @@ public class LavaStrategy extends TrapStrategy{
 		if(keyPos.size() == 0) {
 			if(canExplore.size() > 0) {
 				Coordinate currGoal = randomPick(canExplore);
-				System.err.println(currGoal);
-				System.out.println("canExplore: "+canExplore);
+				//System.err.println(currGoal);
+				//System.out.println("canExplore: "+canExplore);
 				return currGoal;
 			}
 			return null;
@@ -72,15 +72,15 @@ public class LavaStrategy extends TrapStrategy{
 		else if(keyPos.size() == 1){
 			Coordinate currGoal = keyPos.pollLast();
 			inFire = true;
-			System.err.println("!!! infire has been setted");
+			//System.err.println("!!! infire has been setted");
 			return currGoal;
 		}
 		else {
-			System.err.println("ALL KEY pos are: " + keyPos);
+			//System.err.println("ALL KEY pos are: " + keyPos);
 			Coordinate currGoal = keyPos.pollFirst();
 			furtherKey = keyPos.pollLast();
 			inCatchKey = true;
-			System.err.println("!!! inCatchkey has been setted");
+			//System.err.println("!!! inCatchkey has been setted");
 			return currGoal;
 		}
 	}
@@ -105,13 +105,13 @@ public class LavaStrategy extends TrapStrategy{
 			}
 		}
 		ArrayList<Coordinate> canExplore = canExplore(temp, visted);
-		System.out.println("canExplore - all escapePoint (lava): " + canExplore);
+		//System.out.println("canExplore - all escapePoint (lava): " + canExplore);
 		Coordinate outsidePos = randomPick(canExplore);
 		//Coordinate outsidePos = canExplore.get(2);
 		escapePoint = outsidePos;
-		System.out.println("---------escapePoint setted to (lava)-----------");
-		System.out.println(escapePoint);
-		System.out.println("-------------------");
+		//System.out.println("---------escapePoint setted to (lava)-----------");
+		//System.out.println(escapePoint);
+		//System.out.println("-------------------");
 		Coordinate outKey = new Coordinate(-9999,-9999);
 		Coordinate insideNearestKey = outsidePos;
 		int nearest = 99999;
@@ -143,7 +143,7 @@ public class LavaStrategy extends TrapStrategy{
 		if (keyPos.size() == 1 && keyPos.contains(new Coordinate(-9999,-9999)) || keyPos.size() == 1 && keyPos.contains(outsidePos)) {
 			keyPos.clear();
 		}
-		System.err.println("-------------got key array: "+ keyPos);
+		//System.err.println("-------------got key array: "+ keyPos);
 		return keyPos;
 	}
 	

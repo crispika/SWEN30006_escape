@@ -61,7 +61,7 @@ public class MapManager {
 		//System.out.println(reachable);
 		//System.out.println("-----------------------------");
 		cleanReachable();
-		System.out.println(reachable);
+		//System.out.println(reachable);
 		//System.out.println(start);
 	}
 	
@@ -170,7 +170,7 @@ public class MapManager {
 		if(nearPos.equals(new Coordinate(-9999,-9999))) {
 			nearPos = null;
 		}
-		System.err.println("-----nearest health point is: " + nearPos);
+		//System.err.println("-----nearest health point is: " + nearPos);
 		return nearPos;
 	}
 
@@ -196,7 +196,7 @@ public class MapManager {
 			}
 		}
 		if(keytype.size() == car.numKeys()) {
-			System.err.println("found all keys: " + keytype);
+			//System.err.println("found all keys: " + keytype);
 			return true;
 		}
 		else {
@@ -335,14 +335,15 @@ public class MapManager {
 		while (fakeIterator.hasNext()) {
 			Coordinate safePos = fakeIterator.next();
 			HashMap<Coordinate, MapTile> successors2 = getSuccessors(safePos);
-			int count = 0;
+			int count2 = 0;
 			for (Coordinate safeKey : successors2.keySet()) {
 				if (successors2.get(safeKey) == null || successors2.get(safeKey).isType(Type.TRAP)) {
-					count += 1;
+					count2 += 1;
 				}
-				if (count >= 3) {
-					fakeIterator.remove();
-				}
+
+			}
+			if (count2 >= 3) {
+				fakeIterator.remove();
 			}
 		}
 	}

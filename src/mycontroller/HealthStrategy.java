@@ -34,13 +34,13 @@ public class HealthStrategy extends TrapStrategy{
 		canExplore.addAll(canExplore(temp,visted));
 		if(health < 100) {
 			Coordinate currGoal = randomPickHealthPos(temp);
-			System.err.println("-----------health point goal is setted to: " + currGoal);
+			//System.err.println("-----------health point goal is setted to: " + currGoal);
 			if(canExplore.size() > 0) {
 				futureGoal = randomPick(canExplore);
 			}
-			System.err.println("-------------futureGoal setted to: " + futureGoal);
+			//System.err.println("-------------futureGoal setted to: " + futureGoal);
 			inHealth = true;
-			System.err.println("---------------in health setted to true--------------------");
+			//System.err.println("---------------in health setted to true--------------------");
 			return currGoal;
 		}
 		else {
@@ -50,8 +50,8 @@ public class HealthStrategy extends TrapStrategy{
 			if(keyPos.size() == 0) {
 				if(canExplore.size() > 0) {
 					Coordinate currGoal = randomPick(canExplore);
-					System.err.println(currGoal);
-					System.out.println("canExplore: "+canExplore);
+					//System.err.println(currGoal);
+					//System.out.println("canExplore: "+canExplore);
 					return currGoal;
 				}
 				return null;
@@ -59,7 +59,7 @@ public class HealthStrategy extends TrapStrategy{
 			else{
 				Coordinate currGoal = keyPos.pollLast();
 				inFire = true;
-				System.err.println("!!! infire has been setted");
+				//System.err.println("!!! infire has been setted");
 				return currGoal;
 			}
 		}
@@ -77,7 +77,7 @@ public class HealthStrategy extends TrapStrategy{
 	
 	
 	public Coordinate randomPickHealthPos(HashMap<Coordinate, MapTile> temp) {
-		System.out.println("-------------temp: " +temp);
+		//System.out.println("-------------temp: " +temp);
 		Random random = new Random();
 		ArrayList<Coordinate> keys = new ArrayList<>();
 		for(Coordinate key: temp.keySet()) {
@@ -102,12 +102,12 @@ public class HealthStrategy extends TrapStrategy{
 			}
 		}
 		ArrayList<Coordinate> canExplore = canExplore(temp, visted);
-		System.out.println("canExplore - all escapePoint: " + canExplore);
+		//System.out.println("canExplore - all escapePoint: " + canExplore);
 		Coordinate outsidePos = randomPick(canExplore);
-		System.err.println("----------------escapePoint setted to-----------");
+		//System.err.println("----------------escapePoint setted to-----------");
 		escapePoint = outsidePos;
-		System.err.println(escapePoint);
-		System.err.println("-------------------");
+		//System.err.println(escapePoint);
+		//System.err.println("-------------------");
 		Coordinate outKey = new Coordinate(-9999,-9999);
 		int nearest = 99999;
 		for (Coordinate keypos: keyPos) {
@@ -122,7 +122,7 @@ public class HealthStrategy extends TrapStrategy{
 		if (keyPos.size() == 1 && keyPos.contains(new Coordinate(-9999,-9999))) {
 			keyPos.clear();
 		}
-		System.err.println("-------------got key array: "+ keyPos);
+		//System.err.println("-------------got key array: "+ keyPos);
 		return keyPos;
 		
 	}

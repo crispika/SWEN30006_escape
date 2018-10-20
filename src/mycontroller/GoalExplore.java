@@ -100,11 +100,11 @@ public class GoalExplore {
             Coordinate nextPos = path.get(1);
             action = action(currentPos, nextPos);
         }
-        System.out.println("------------GoalExplore------------");
-        System.out.println("path: "+path);
-        System.out.println("action: "+action);
-        System.out.println("currentPos: "+currentPos);
-        System.out.println("------------------");
+        //System.out.println("------------GoalExplore------------");
+        //System.out.println("path: "+path);
+        //System.out.println("action: "+action);
+        //System.out.println("currentPos: "+currentPos);
+        //System.out.println("------------------");
         switch (action) {
             case "forward":
             	MyAIController.setCarFoward(true);
@@ -151,10 +151,10 @@ public class GoalExplore {
             Coordinate nextPos = path.get(1);
             action = action(currentPos, nextPos);
         }
-        System.out.println("------------GoalExplore------------");
-        System.out.println("path: "+path);
-        System.out.println("action: "+action);
-        System.out.println("------------------");
+        //System.out.println("------------GoalExplore------------");
+        //System.out.println("path: "+path);
+        //System.out.println("action: "+action);
+        //System.out.println("------------------");
         switch (action) {
             case "forward":
                 MyAIController.setCarFoward(true);

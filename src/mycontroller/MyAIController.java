@@ -133,12 +133,12 @@ public class MyAIController extends CarController{
 				GoalExplore.getInstance().moveToPos(catchKeyGoal);
 				hasGoaltoCatchKey = true;
 				inHealth = true;
-				System.out.println("--------------------hasGoalToCatchKey setted to true----------");
+				//System.out.println("--------------------hasGoalToCatchKey setted to true----------");
 			}
 			else {
 				if(currPos.equals(catchKeyGoal)) {
 					if(inHealth) {
-						System.out.println("----------------------inHealth - catchKey---------------");
+						//System.out.println("----------------------inHealth - catchKey---------------");
 						if(getHealth() < 100) {
 							applyBrake();
 						}
@@ -146,13 +146,13 @@ public class MyAIController extends CarController{
 							inHealth = false;
 							//test
 							if(unCatchedKey.size() == 0) {
-								System.out.println("-----------!!!nice!!!---to the exit!!!!!!!------------");
+								//System.out.println("-----------!!!nice!!!---to the exit!!!!!!!------------");
 								catchKeyGoal = MapManager.getInstance().getFinish();
 
 							}
 							else {
 								catchKeyGoal = unCatchedKey.get(0);
-								System.err.println("--------to catch key: " + catchKeyGoal);
+								//System.err.println("--------to catch key: " + catchKeyGoal);
 							}
 
 
@@ -160,27 +160,27 @@ public class MyAIController extends CarController{
 						}
 					}
 					else if(getHealth() < 70) {
-						System.out.println("-------------------to nearest health point ---------------");
+						//System.out.println("-------------------to nearest health point ---------------");
 						catchKeyGoal = MapManager.getInstance().findNearestHealth(currPos);
 						System.err.println();
 						inHealth = true;
 					}
 					else {
 						if(unCatchedKey.size() == 0) {
-							System.out.println("-----------!!!nice!!!---to the exit!!!!!!!------------");
+							//System.out.println("-----------!!!nice!!!---to the exit!!!!!!!------------");
 							catchKeyGoal = MapManager.getInstance().getFinish();
 
 						}
 						else {
 							catchKeyGoal = unCatchedKey.get(0);
-							System.err.println("--------to catch key: " + catchKeyGoal);
+							//System.err.println("--------to catch key: " + catchKeyGoal);
 						}
 					}
 				}
 				else {
-					System.out.println("---------------to Key-----------------");
-					System.out.println("current pos: "+currPos);
-					System.out.println("next key： "+catchKeyGoal);
+					//System.out.println("---------------to Key-----------------");
+					//System.out.println("current pos: "+currPos);
+					//System.out.println("next key： "+catchKeyGoal);
 					GoalExplore.getInstance().moveToPos(catchKeyGoal);
 				}
 			}
@@ -189,8 +189,8 @@ public class MyAIController extends CarController{
 		// explore the map
 		else {
 			if(currPos.equals(SafeExplore.getInstance().getHitWallPoint()) && safeCounter > 0 || stepCounter > 500){
-				System.out.println("-------------End of the safeExplore--------------");
-				System.err.println("StepCounter: " + stepCounter);
+				//System.out.println("-------------End of the safeExplore--------------");
+				//System.err.println("StepCounter: " + stepCounter);
 
 				inSafeExplore = false;
 				safeCounter = 0;
@@ -216,7 +216,7 @@ public class MyAIController extends CarController{
 
 				//no newly MapTile found;
 				if(trapCount.size() == 0) {
-					System.err.println("---------------no new this detected --------------");
+					//.err.println("---------------no new this detected --------------");
 					combineCanExplore(new ArrayList<>());
 					if(allunExplore.size() > 0) {
 						//System.err.println("allunExplore: "+allunExplore);
@@ -226,7 +226,7 @@ public class MyAIController extends CarController{
 						currGoal = healthDealer.randomPick(MapManager.getInstance().unScannedPoint());
 					}
 					//System.err.println(allunExplore);
-					System.err.println("------currGoal is setted to: " + currGoal);
+					//System.err.println("------currGoal is setted to: " + currGoal);
 					GoalExplore.getInstance().initGoalExplore();
 					GoalExplore.getInstance().moveToPos(currGoal);
 
@@ -242,9 +242,9 @@ public class MyAIController extends CarController{
 						}
 						combineCanExplore(lavaDealer.getCanExplore());
 						inFire = lavaDealer.getInfire();
-						System.err.println("----------inFire is: " + inFire);
+						//System.err.println("----------inFire is: " + inFire);
 						escapeGoal = lavaDealer.getescapePoint();
-						System.err.println("--------received escape point: "+ escapeGoal);
+						//System.err.println("--------received escape point: "+ escapeGoal);
 						GoalExplore.getInstance().initGoalExplore();
 						GoalExplore.getInstance().moveToPos(currGoal);
 					}
@@ -256,13 +256,13 @@ public class MyAIController extends CarController{
 						combineCanExplore(lavaDealer.getCanExplore());
 
 						inCatchKey =lavaDealer.getInCatchKey();
-						System.err.println("----------inCatchKey is: " + inCatchKey);
+						//System.err.println("----------inCatchKey is: " + inCatchKey);
 						furtherKey = lavaDealer.getFurtherKey();
-						System.err.println("---------furtherkeyPos is "+ furtherKey);
+						//System.err.println("---------furtherkeyPos is "+ furtherKey);
 						inFire = lavaDealer.getInfire();
-						System.err.println("----------inFire is: " + inFire);
+						//System.err.println("----------inFire is: " + inFire);
 						escapeGoal = lavaDealer.getescapePoint();
-						System.err.println("--------received escape point: "+ escapeGoal);
+						//System.err.println("--------received escape point: "+ escapeGoal);
 						GoalExplore.getInstance().initGoalExplore();
 						GoalExplore.getInstance().moveToPos(currGoal);
 					}
@@ -289,19 +289,19 @@ public class MyAIController extends CarController{
 						currGoal = healthDealer.randomPick(allunExplore);
 					}
 
-					System.out.println("--------Health case: currGoal: " + currGoal);
+					//System.out.println("--------Health case: currGoal: " + currGoal);
 					combineCanExplore(healthDealer.getCanExplore());
 					inHealth = healthDealer.getInHealth();
 					inFire = healthDealer.getInfire();
-					System.err.println("----------inFire is: " + inFire);
+					//System.err.println("----------inFire is: " + inFire);
 					escapeGoal = healthDealer.getescapePoint();
-					System.err.println("--------received escape point: "+ escapeGoal);
+					//System.err.println("--------received escape point: "+ escapeGoal);
 
 					futureGoal = healthDealer.getFutureGoal();
 					if (futureGoal.equals(new Coordinate(-1,-1))) {
 						futureGoal = healthDealer.randomPick(allunExplore);
 					}
-					System.err.println("-----getFutureGoal: " + futureGoal);
+					//System.err.println("-----getFutureGoal: " + futureGoal);
 
 					GoalExplore.getInstance().initGoalExplore();
 					GoalExplore.getInstance().moveToPos(currGoal);
@@ -314,12 +314,12 @@ public class MyAIController extends CarController{
 				stepCounter +=1;
 				if (currPos.equals(SafeExplore.getInstance().getHitWallPoint())) {
 					safeCounter+=1;
-					System.out.println("safecounter: " +  safeCounter);
+					//System.out.println("safecounter: " +  safeCounter);
 				}
 			}
 			else {
 				if(currPos.equals(currGoal)) {
-					System.err.println(currGoal);
+					//System.err.println(currGoal);
 //					MapManager.getInstance().cleanHealthPos();
 
 //					Coordinate nearHealth = MapManager.getInstance().findNearestHealth(currPos);
@@ -334,9 +334,9 @@ public class MyAIController extends CarController{
 
 					// state when catching the second key or the only key
 					if(inFire) {
-						System.out.println("-------------------infire---------------------");
+						//System.out.println("-------------------infire---------------------");
 						//TODO Escape after get key:
-						System.out.println("escaping to: " + lavaDealer.getescapePoint());
+						//System.out.println("escaping to: " + lavaDealer.getescapePoint());
 
 						//ArrayList canExplore = lavaDealer.getCanExplore();
 						currGoal = escapeGoal;
@@ -352,14 +352,14 @@ public class MyAIController extends CarController{
 //						possibleGoal = lavaDealer.nearestSafePoint(localcanExplore, currPos);
 
 						possibleGoal = newFoundRoadByGoalExplore(currPos);
-						System.err.println("posiblegoal: "+possibleGoal);
+						//System.err.println("posiblegoal: "+possibleGoal);
 
 
 						//GoalExplore.getInstance().initGoalExplore();
 						//GoalExplore.getInstance().moveToPos(currGoal);
 						inFire = false;
-						System.err.println("-------------infire set to false---------------");
-						System.out.println("-----------get the key-----------");
+						//System.err.println("-------------infire set to false---------------");
+						//System.out.println("-----------get the key-----------");
 
 					}
 
@@ -367,7 +367,7 @@ public class MyAIController extends CarController{
 					//if the preConsidered "escapePoint" is actually a lava because of view limit, selected the real escape point (possibleGoal) to the new area
 
 					else if(!inCatchKey && MapManager.getInstance().getrealMap().get(currPos) instanceof LavaTrap) {
-						System.out.println("---------------escaping by explore-----------------");
+						//System.out.println("---------------escaping by explore-----------------");
 						//TODO Escape from undetected lavaTrap:
 						currGoal = possibleGoal;
 
@@ -380,7 +380,7 @@ public class MyAIController extends CarController{
 					// state to recover
 					else if(inHealth) {
 						if (getHealth()<100) {
-							System.out.println("---------------stop for getting health---------------");
+							//System.out.println("---------------stop for getting health---------------");
 							applyBrake();
 						}
 
@@ -389,7 +389,7 @@ public class MyAIController extends CarController{
 							MapTile futuregoal = MapManager.getInstance().getrealMap().get(futureGoal);
 							if( (futuregoal.isType(Type.ROAD) || futuregoal instanceof HealthTrap) && !MapManager.getInstance().isDeadRoad(futureGoal)) {
 								currGoal = futureGoal;
-								System.err.println("future goal can work : " + futureGoal);
+								//System.err.println("future goal can work : " + futureGoal);
 
 								//add newlyfound point to allunExplore
 								newFoundRoadByGoalExplore(currPos);
@@ -403,15 +403,15 @@ public class MyAIController extends CarController{
 								cleanTemp(temp);
 								//System.out.println("cleanedTemp: " + temp);
 								ArrayList<Coordinate> canExplore = lavaDealer.canExplore(temp,visted);
-								System.err.println("inHealth case, redetected Canexplore goal: " + canExplore);
+								//System.err.println("inHealth case, redetected Canexplore goal: " + canExplore);
 								combineCanExplore(canExplore);
 								currGoal = healthDealer.randomPick(canExplore);
-								System.err.println("future goal can't work, changed to goal: " + currGoal);
+								//System.err.println("future goal can't work, changed to goal: " + currGoal);
 							}
 
-							System.out.println("health 100, move to futureGoal: " + futureGoal);
+							//System.out.println("health 100, move to futureGoal: " + futureGoal);
 							inHealth = false;
-							System.out.println("-------------inhealth setted to false-----------------");
+							//System.out.println("-------------inhealth setted to false-----------------");
 
 							//add newlyfound point to allunExplore
 							newFoundRoadByGoalExplore(currPos);
@@ -426,7 +426,7 @@ public class MyAIController extends CarController{
 					else if(inCatchKey) {
 						currGoal = furtherKey;
 						inCatchKey = false;
-						System.out.println("-------------inCatchKey setted to false-----------------");
+						//System.out.println("-------------inCatchKey setted to false-----------------");
 						inFire = true;
 
 						//add newlyfound point to allunExplore
@@ -436,7 +436,7 @@ public class MyAIController extends CarController{
 
 					//if health is not enough and there is a healthtrap nearby, go to recover
 					else if (getHealth() < 70 && toNearestHeathPos <30) {
-						System.err.println("-----------------health<65, to catch health------------------------");
+						//System.err.println("-----------------health<65, to catch health------------------------");
 						//ArrayList<Coordinate> path = Search.BFS_findPathToCloestH(currPos);
 						currGoal = path.get(path.size() -1);
 //						MapTile mapTile = MapManager.getInstance().getrealMap().get(currPos);
@@ -450,7 +450,7 @@ public class MyAIController extends CarController{
 						GoalExplore.getInstance().initGoalExplore();
 					}
 					else {
-						System.out.println("---------------start next round of safeExplore--------------");
+						//System.out.println("---------------start next round of safeExplore--------------");
 						inSafeExplore = true;
 						SafeExplore.getInstance().initSafeExplore();
 						SafeExplore.getInstance().safeExplore();
@@ -458,12 +458,12 @@ public class MyAIController extends CarController{
 				}
 				else {
 					//System.err.println(currGoal);
-					System.out.println("------------Moving to Goal (Controller)------------");
-					System.out.println(currPos + " TO " +currGoal);
+					//System.out.println("------------Moving to Goal (Controller)------------");
+					//System.out.println(currPos + " TO " +currGoal);
 					//for test:
-					System.out.println("currPos is: " + printCurrMaptile(currPos));
-					System.out.println("Health: " +getHealth());
-					System.out.println("------------------");
+					//System.out.println("currPos is: " + printCurrMaptile(currPos));
+					//System.out.println("Health: " +getHealth());
+					//System.out.println("------------------");
 					GoalExplore.getInstance().moveToPos(currGoal);
 
 				}
@@ -512,7 +512,7 @@ public class MyAIController extends CarController{
 				iterator.remove();
 			}
 		}
-		System.out.println("set allunExplore: "+allunExplore);
+		//System.out.println("set allunExplore: "+allunExplore);
 		for (Coordinate newPos: canExplore) {
 			if (!allunExplore.contains(newPos)) {
 				allunExplore.add(newPos);
@@ -527,7 +527,7 @@ public class MyAIController extends CarController{
 		cleanTemp(temp);
 		//System.out.println("cleanedTemp: " + temp);
 		ArrayList<Coordinate> localcanExplore = lavaDealer.canExplore(temp,visted);
-		System.err.println("Canexplore: " + localcanExplore);
+		//System.err.println("Canexplore: " + localcanExplore);
 		combineCanExplore(localcanExplore);
 		Coordinate possGoal = lavaDealer.nearestSafePoint(localcanExplore, currPos);
 		return possGoal;

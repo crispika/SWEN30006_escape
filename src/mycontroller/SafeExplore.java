@@ -373,23 +373,23 @@ public class SafeExplore {
 		successors.remove(nextNextPos);
 		for (Coordinate key: successors.keySet()) {
 			if (nextpos.equals(new Coordinate(3,14))) {
-				System.err.println("nextPos: " + nextpos);
-				System.err.println("nextNextPos: " + nextNextPos);
-				System.err.println(key);
-				System.err.println(orientation);
+				//System.err.println("nextPos: " + nextpos);
+				//System.err.println("nextNextPos: " + nextNextPos);
+				//System.err.println(key);
+				//System.err.println(orientation);
 			}
 
 
 			if(successors.get(key) == null) {
 				if (nextpos.equals(new Coordinate(3,14))) {
-					System.err.println("------------1---------------");
+					//System.err.println("------------1---------------");
 				}
 				return true;
 			}
 			// in safeExplore, we assume all trap as wall
 			if(successors.get(key).isType(Type.TRAP)) {
 				if (nextpos.equals(new Coordinate(3,14))) {
-					System.err.println("------------2---------------");
+					//System.err.println("------------2---------------");
 				}
 				return true;
 			}
@@ -502,7 +502,7 @@ public class SafeExplore {
 				}
 				break;
 			default:
-				System.err.println("Should not get here");
+				//System.err.println("Should not get here");
 				return false;
 
 		}
