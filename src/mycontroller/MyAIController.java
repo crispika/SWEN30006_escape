@@ -55,66 +55,6 @@ public class MyAIController extends CarController{
 	@Override
 	public void update() {
 
-//		Float healthForTest;
-//		healthForTest = getHealth();
-//		if (healthForTest < 6){
-//			HashMap<Coordinate,MapTile> output = MapManager.getInstance().getrealMap();
-//			for (int j = 59 ; j>=0; j--){
-//
-//				for (int i = 0 ; i<60; i++){
-//					if (i == 0){
-//						System.out.println();
-//					}
-//					Coordinate temp = new Coordinate(i,j);
-//					if (output.containsKey(temp)){
-//						MapTile tile_temp = output.get(temp);
-//						switch (tile_temp.getType()){
-//							case WALL:
-//								System.out.print("W ");
-//								break;
-//
-//							case EMPTY:
-//								System.out.print("E ");
-//								break;
-//
-//							case TRAP:
-//								if(tile_temp instanceof MudTrap){
-//									System.out.print("M ");
-//								}
-//								else if(tile_temp instanceof GrassTrap){
-//									System.out.print("G ");
-//								}
-//								else if(tile_temp instanceof HealthTrap){
-//									System.out.print("H ");
-//								}
-//								else if(tile_temp instanceof LavaTrap){
-//									System.out.print("L ");
-//								}
-//								else{
-//									System.out.print("/ ");
-//								}
-//								break;
-//
-//							case ROAD:
-//								System.out.print("R ");
-//								break;
-//							case START:
-//								System.out.print("S ");
-//								break;
-//							case FINISH:
-//								System.out.print("F ");
-//								break;
-//							default:
-//								//System.out.print("X ");
-//								break;
-//						}
-//					}
-//				}
-//			}
-//		}
-
-
-
 		//save all viewed map to the real map
 		MapManager.getInstance().setScanMap();
 		//save the visted position;

@@ -36,7 +36,7 @@ public class Search {
         return visited;
     }
 
-    public static ArrayList BFS_findPathToPos2(Coordinate startPos, Coordinate goalPos) {
+    public static ArrayList BFS(Coordinate startPos, Coordinate goalPos) {
         ArrayList<Coordinate> visited = new ArrayList<Coordinate>();
         HashMap<Coordinate, ArrayList> allPath = new HashMap<Coordinate, ArrayList>();
 
@@ -71,7 +71,7 @@ public class Search {
         return null;
     }
 
-    public static ArrayList BFS_findPathToPos(Coordinate startPos, Coordinate goalPos) {
+    public static ArrayList uniCostSearch(Coordinate startPos, Coordinate goalPos) {
         int lavaCost = 2;
         int grassCost = 3;
         int roadCost = 1;

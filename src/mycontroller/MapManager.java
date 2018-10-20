@@ -345,10 +345,6 @@ public class MapManager {
 			if (count2 >= 3) {
 				fakeIterator.remove();
 			}
-			if (count2 >= 3) {
-				fakeIterator.remove();
-
-			}
 		}
 	}
 	public boolean isFakeReachable(Coordinate pos){
